@@ -3,13 +3,13 @@ export default function Service({ children, reverse }) {
     <article
       className={`flex ${
         reverse ? "flex-row-reverse" : "flex-row"
-      } items-center gap-8 mt-6`}
+      } items-center justify-between mt-6`}
     >
       <div className="basis-1/2">
-        <h3 className="text-3xl">
+        <h3 className="text-2xl font-bold">
           Lorem, ipsum dolor sit amet consectetur adipisicing elit.
         </h3>
-        <p>
+        <p className="mt-4 leading-6 text-lg text-neutral-600 max-w-2xl">
           Lorem ipsum dolor sit amet consectetur adipisicing elit. Eos quidem
           quas accusantium possimus vel. Sequi reiciendis expedita eaque maiores
           eos.

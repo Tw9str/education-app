@@ -11,7 +11,7 @@ export default function page() {
     setIslogin((prev) => !prev);
   }
   return (
-    <div className="bg-gray-50 flex flex-col max-w-md mx-auto mt-16 p-6 rounded-md sm:p-10">
+    <div className="bg-gray-50 flex flex-col max-w-md mx-auto mt-20 p-6 rounded-md sm:p-10">
       {isLogin ? (
         <Login onFormSwitch={handleFormSwitch} />
       ) : (

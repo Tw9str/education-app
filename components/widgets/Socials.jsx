@@ -9,7 +9,7 @@ import {
 
 export default function Socials() {
   return (
-    <ul className="flex flex-col gap-4">
+    <ul className="flex sm:flex-col gap-4">
       <li>
         <Link href="/">
           <RiTwitterXFill />

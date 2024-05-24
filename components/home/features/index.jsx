@@ -7,7 +7,7 @@ import {
 
 export default function Features() {
   return (
-    <div className="max-w-7xl mx-auto pt-4 px-4 sm:px-6 md:px-8 flex gap-4 flex-wrap mt-20">
+    <section className="max-w-7xl mx-auto pt-4 px-4 sm:px-6 md:px-8 flex gap-4 flex-wrap mt-20">
       <article className="flex flex-col items-center justify-start gap-4 basis-full sm:basis-[calc((100%/2)-1rem/2)] lg:basis-[calc((100%/4)-3rem/4)] shadow-lg px-4 py-8 border-2 border-gray-100 rounded-xl cursor-pointer hover:scale-105 duration-300">
         <div className="rounded-xl p-4 bg-green-500 w-fit">
           <IcBaselineDiversity3 />
@@ -57,6 +57,6 @@ export default function Features() {
           pentru a naviga provocările academic cu încredere și competență.
         </p>
       </article>
-    </div>
+    </section>
   );
 }

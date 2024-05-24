@@ -3,7 +3,7 @@ import Plan from "./Plan";
 
 export default function Plans() {
   return (
-    <section className="max-w-7xl mx-auto mt-16 pt-4 px-4 sm:px-6 md:px-8">
+    <section className="max-w-7xl mx-auto mt-20 pt-4 px-4 sm:px-6 md:px-8">
       <div className="mx-auto text-center">
         <h2 className="text-lg font-semibold p-2 w-fit mx-auto text-green-500">
           Preturi

@@ -25,7 +25,7 @@ export default function Test() {
 
   return (
     <main className="px-4 sm:px-6 md:px-8">
-      <div className="flex justify-between items-center max-w-7xl mx-auto mt-16 p-6 sm:px-6 md:px-8 border border-gray-100 rounded-lg">
+      <div className="flex justify-between items-center max-w-7xl mx-auto mt-20 p-6 sm:px-6 md:px-8 border border-gray-100 rounded-lg">
         <div className="flex flex-col justify-center items-ccenter gap-4">
           <div className="flex justify-around items-center gap-2 rounded-lg text-white bg-orange-500 p-4">
             <Timer />

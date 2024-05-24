@@ -4,7 +4,7 @@ import { Books, Certificate, TeachingSvg, Education } from "./Figures";
 
 export default function Services() {
   return (
-    <div className="max-w-7xl mx-auto mt-16 px-4 sm:px-6 md:px-8">
+    <section className="max-w-7xl mx-auto mt-20 pt-4 px-4 sm:px-6 md:px-8">
       <h2 className="text-lg font-semibold p-2 w-fit mx-auto text-green-500">
         What do we offer?
       </h2>
@@ -22,6 +22,6 @@ export default function Services() {
           <Education />
         </Service>
       </div>
-    </div>
+    </section>
   );
 }
