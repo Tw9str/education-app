@@ -1,13 +1,17 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
-export default function Register({ onFormSwitch }) {
+export default function Register() {
   const [formData, setFormData] = useState({
     username: "",
     email: "",
     password: "",
   });
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -19,7 +23,8 @@ export default function Register({ onFormSwitch }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    setLoading(true);
+    setMessage("");
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_BASE}/auth/register`,
@@ -32,15 +37,18 @@ export default function Register({ onFormSwitch }) {
         }
       );
 
-      if (response.ok) {
-        const data = await response.json();
-        console.log("Registration successful", data);
+      const data = await response.json();
+      setMessage(data.message);
+      if (data.success) {
+        router.push("/auth/login");
       } else {
-        const errorData = await response.json();
-        console.error("Registration failed", response.status, errorData);
+        setMessage(data.message || "Registration failed. Please try again.");
       }
     } catch (error) {
       console.error("Error submitting form", error);
+      setMessage("An error occurred. Please try again later.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -62,12 +70,14 @@ export default function Register({ onFormSwitch }) {
               Username
             </label>
             <input
-              type="username"
+              type="text"
               name="username"
               id="username"
               placeholder="user"
               className="w-full px-3 py-2 border rounded-md focus:outline-green-500"
               onChange={handleInputChange}
+              required
+              aria-required="true"
             />
           </div>
           <div>
@@ -81,6 +91,8 @@ export default function Register({ onFormSwitch }) {
               placeholder="example@domain.com"
               className="w-full px-3 py-2 border rounded-md focus:outline-green-500"
               onChange={handleInputChange}
+              required
+              aria-required="true"
             />
           </div>
           <div>
@@ -103,27 +115,29 @@ export default function Register({ onFormSwitch }) {
               placeholder="*****"
               className="w-full px-3 py-2 border rounded-md focus:outline-green-500"
               onChange={handleInputChange}
+              required
+              aria-required="true"
             />
           </div>
         </div>
         <div className="space-y-2">
+          {message && <p className="text-red-500">{message}</p>}
           <div>
             <button
               type="submit"
-              className="text-white w-full px-8 py-3 font-semibold rounded-md bg-green-500 hover:bg-green-400 duration-300"
+              className={`text-white w-full px-8 py-3 font-semibold rounded-md bg-green-500 hover:bg-green-400 duration-300 ${
+                loading ? "opacity-50 cursor-not-allowed" : ""
+              }`}
+              disabled={loading}
             >
-              Sign up
+              {loading ? "Signing up..." : "Sign up"}
             </button>
           </div>
           <p className="text-gray-600 px-6 text-sm text-center">
             Already have an account?{" "}
-            <button
-              type="button"
-              className="text-gray-950 hover:underline"
-              onClick={onFormSwitch}
-            >
+            <Link href="/auth/login" className="text-gray-950 hover:underline">
               Sign in
-            </button>
+            </Link>
             .
           </p>
         </div>

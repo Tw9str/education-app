@@ -1,24 +1,61 @@
+"use client";
 import Link from "next/link";
-import React from "react";
+import { useState } from "react";
+import Sign from "./Sign";
 
 export default function Menu() {
+  const [isOpen, setIsOpen] = useState(false);
+  function handleMenuOpen() {
+    setIsOpen((prev) => !prev);
+  }
   return (
-    <nav>
-      <ul className="hidden md:flex justify-center items-center gap-8 font-medium">
+    <nav className="relative order-1 md:order-none">
+      <button className="md:hidden" type="button" onClick={handleMenuOpen}>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="2rem"
+          height="2rem"
+          viewBox="0 0 24 24"
+        >
+          <path
+            fill="none"
+            stroke="black"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M4 6h16M4 12h16M4 18h16"
+          ></path>
+        </svg>
+      </button>
+      <ul
+        className={`${
+          isOpen ? "block" : "hidden"
+        } bg-gray-50 md:bg-transparent p-8 md:p-0 shadow-2xl md:shadow-none rounded-xl absolute top-12 right-0 z-50 md:static flex flex-col md:flex-row justify-center items-center gap-8 md:gap-4 lg:gap-8 font-medium`}
+      >
         <li className="border-b-2 border-b-transparent hover:border-b-2 hover:border-green-500 hover:text-green-500 duration-300">
-          <Link href="/">Home</Link>
+          <Link className="py-4" href="/">
+            Home
+          </Link>
         </li>
         <li className="border-b-2 border-b-transparent hover:border-b-2 hover:border-green-500 hover:text-green-500 duration-300">
-          <Link href="">Courses</Link>
+          <Link className="py-4" href="">
+            Courses
+          </Link>
         </li>
         <li className="border-b-2 border-b-transparent hover:border-b-2 hover:border-green-500 hover:text-green-500 duration-300">
-          <Link href="">Blog</Link>
+          <Link className="py-4" href="">
+            Blog
+          </Link>
         </li>
         <li className="border-b-2 border-b-transparent hover:border-b-2 hover:border-green-500 hover:text-green-500 duration-300">
-          <Link href="">About</Link>
+          <Link className="py-4" href="">
+            About
+          </Link>
         </li>
         <li className="border-b-2 border-b-transparent hover:border-b-2 hover:border-green-500 hover:text-green-500 duration-300">
-          <Link href="">Contact</Link>
+          <Link className="py-4" href="">
+            Contact
+          </Link>
         </li>
       </ul>
     </nav>

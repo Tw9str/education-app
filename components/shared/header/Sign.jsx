@@ -4,8 +4,8 @@ import React from "react";
 export default function Sign() {
   return (
     <Link
-      href="/sign"
-      className="rounded-full text-white bg-green-500 py-4 px-6 shadow-md hover:bg-green-400 duration-300"
+      href="/auth/login"
+      className="rounded-full text-white text-xs md:text-base bg-green-500 mr-2 ml-auto md:mr-0 md:ml-0 p-4 md:py-4 md:px-6 shadow-md hover:bg-green-400 duration-300"
     >
       Login/Register
     </Link>

@@ -1,12 +1,15 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
-export default function Login({ onFormSwitch }) {
+export default function Login() {
+  const [message, setMessage] = useState("");
   const [formData, setFormData] = useState({
     username: "",
     password: "",
   });
+  const [loading, setLoading] = useState(false);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -16,9 +19,12 @@ export default function Login({ onFormSwitch }) {
     }));
   };
 
+  const router = useRouter();
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(formData);
+    setLoading(true);
+    setMessage("");
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_BASE}/auth/login`,
@@ -31,14 +37,18 @@ export default function Login({ onFormSwitch }) {
         }
       );
 
-      if (response.ok) {
-        const data = await response.json();
-        console.log("Login successful", data);
+      const data = await response.json();
+      setMessage(data.message);
+      if (data.success) {
+        router.push("/dashboard");
       } else {
-        console.error("Login failed");
+        setMessage(data.message || "Login failed. Please try again.");
       }
     } catch (error) {
       console.error("Error submitting form", error);
+      setMessage("An error occurred. Please try again later.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -64,6 +74,8 @@ export default function Login({ onFormSwitch }) {
               placeholder="example@domain.com"
               className="w-full px-3 py-2 border rounded-md focus:outline-green-500"
               onChange={handleInputChange}
+              required
+              aria-required="true"
             />
           </div>
           <div>
@@ -86,27 +98,32 @@ export default function Login({ onFormSwitch }) {
               placeholder="*****"
               className="w-full px-3 py-2 border rounded-md focus:outline-green-500"
               onChange={handleInputChange}
+              required
+              aria-required="true"
             />
           </div>
         </div>
         <div className="space-y-2">
+          {message && <p className="text-red-500">{message}</p>}
           <div>
             <button
               type="submit"
-              className="text-white w-full px-8 py-3 font-semibold rounded-md bg-green-500 hover:bg-green-400 duration-300"
+              className={`text-white w-full px-8 py-3 font-semibold rounded-md bg-green-500 hover:bg-green-400 duration-300 ${
+                loading ? "opacity-50 cursor-not-allowed" : ""
+              }`}
+              disabled={loading}
             >
-              Sign in
+              {loading ? "Signing in..." : "Sign in"}
             </button>
           </div>
           <p className="text-gray-600 px-6 text-sm text-center">
             Don't have an account yet?{" "}
-            <button
-              type="button"
+            <Link
+              href="/auth/register"
               className="text-gray-950 hover:underline"
-              onClick={onFormSwitch}
             >
-              Sign up
-            </button>
+              Register
+            </Link>
             .
           </p>
         </div>
