@@ -1,4 +1,4 @@
-import React from "react";
+import Image from "next/image";
 
 export default function Review() {
   return (
@@ -10,8 +10,11 @@ export default function Review() {
             delectus nihil. Aut enim doloremque et ipsam.”
           </p>
         </blockquote>
-        <figcaption className="flex items-center mt-6">
-          <img className="w-12 h-12 rounded-full" src="/pc.jpg" alt="" />
+        <figcaption className=" flex items-center mt-6">
+          <div className="relative w-12 h-12">
+            <Image className="rounded-full" src="/pc.jpg" alt="" fill />
+          </div>
+
           <div className="ml-4">
             <div className="font-semibold">Leslie Alexander</div>
             <div className="text-neutral-500">@lesliealexander</div>

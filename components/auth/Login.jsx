@@ -2,6 +2,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { setLogin } from "@/state/authSlice";
+import { useDispatch } from "react-redux";
 
 export default function Login() {
   const [message, setMessage] = useState("");
@@ -20,6 +22,7 @@ export default function Login() {
   };
 
   const router = useRouter();
+  const dispatch = useDispatch();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -40,6 +43,7 @@ export default function Login() {
       const data = await response.json();
       setMessage(data.message);
       if (data.success) {
+        dispatch(setLogin(data));
         router.push("/dashboard");
       } else {
         setMessage(data.message || "Login failed. Please try again.");

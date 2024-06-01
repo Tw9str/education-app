@@ -9,7 +9,6 @@ import {
   MaterialSymbolsPlayArrowOutline,
 } from "./Icons";
 import OverlayAlert from "@/components/widgets/OverlayAlert";
-import Quiz from "@/components/dashboard/examForms/Quiz";
 
 export default function Test() {
   const [selectedAnswer, setSelectedAnswer] = useState(null);
