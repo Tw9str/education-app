@@ -22,10 +22,13 @@ export default function ExamForm() {
     formData.append("correctAnswer", correctAnswer);
     if (image) formData.append("image", image);
 
-    const res = await fetch("http://localhost:3001/api/add-question", {
-      method: "POST",
-      body: formData,
-    });
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_BASE}/add-question`,
+      {
+        method: "POST",
+        body: formData,
+      }
+    );
 
     if (res.ok) {
       alert("Question added successfully");
