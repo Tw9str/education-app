@@ -10,7 +10,7 @@ export default function ExamCategories({ categories }) {
   async function handleDeleteClick(id) {
     try {
       await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE}/categories/delete/${id}`,
+        `${process.env.NEXT_PUBLIC_API_BASE}/api/categories/delete/${id}`,
         {
           method: "DELETE",
           headers: {

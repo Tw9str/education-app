@@ -17,7 +17,7 @@ export default function AddCategory() {
     formData.append("title", categoryTitle);
 
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_BASE}/category/add`,
+      `${process.env.NEXT_PUBLIC_API_BASE}/api/category/add`,
       {
         method: "POST",
         headers: {

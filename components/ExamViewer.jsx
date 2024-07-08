@@ -45,7 +45,7 @@ export default function ExamViewer({ exam }) {
             </span>
           </div>
           <Image
-            src={`${process.env.NEXT_PUBLIC_API_BASE}/${currentQuestion?.image}`}
+            src={`${process.env.NEXT_PUBLIC_API_BASE}/questions/${currentQuestion?.image}`}
             width={800}
             height={800}
             alt=""

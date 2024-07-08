@@ -27,7 +27,7 @@ export default function Register() {
     setMessage("");
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE}/auth/register`,
+        `${process.env.NEXT_PUBLIC_API_BASE}/api/auth/register`,
         {
           method: "POST",
           headers: {

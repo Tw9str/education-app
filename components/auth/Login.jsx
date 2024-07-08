@@ -30,7 +30,7 @@ export default function Login() {
     setMessage("");
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE}/auth/login`,
+        `${process.env.NEXT_PUBLIC_API_BASE}/api/auth/login`,
         {
           method: "POST",
           headers: {

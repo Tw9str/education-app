@@ -1,7 +1,7 @@
 export async function fetchCategories() {
   try {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_BASE}/categories`,
+      `${process.env.NEXT_PUBLIC_API_BASE}/api/categories`,
       { cache: "no-store" }
     );
 

@@ -23,7 +23,7 @@ export default function ExamForm() {
     if (image) formData.append("image", image);
 
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_BASE}/add-question`,
+      `${process.env.NEXT_PUBLIC_API_BASE}/api/add-question`,
       {
         method: "POST",
         body: formData,
