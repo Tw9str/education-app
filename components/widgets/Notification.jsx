@@ -5,7 +5,6 @@ export default function Notification({
   onNotificationClose,
   messages,
 }) {
-  console.log(messages);
   const [showNotification, setShowNotification] = useState(false);
 
   useEffect(() => {

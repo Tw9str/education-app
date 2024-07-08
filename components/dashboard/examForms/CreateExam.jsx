@@ -5,20 +5,13 @@ import { useSelector } from "react-redux";
 
 export default function CreateExam({ categories }) {
   const [isNotificationOn, setIsNotificationOn] = useState(false);
-  const [messages, setMessages] = useState({
-    message: "",
-    error: "",
-  });
-
-  const [examTitle, setExamTitle] = useState({
-    title: "",
-    category: "",
-  });
+  const [messages, setMessages] = useState({ message: "", error: "" });
+  const [examTitle, setExamTitle] = useState({ title: "", category: "" });
   const [questions, setQuestions] = useState([
     {
       image: null,
       answers: ["", "", "", ""],
-      correctAnswer: "",
+      correctAnswers: [],
       explanation: "",
     },
   ]);
@@ -31,20 +24,31 @@ export default function CreateExam({ categories }) {
       {
         image: null,
         answers: ["", "", "", ""],
-        correctAnswer: "",
+        correctAnswers: [],
         explanation: "",
       },
     ]);
   };
 
   const deleteQuestion = (index) => {
-    const updatedQuestions = questions.filter((_, qIndex) => qIndex !== index);
+    const updatedQuestions = [...questions];
+    updatedQuestions.splice(index, 1);
     setQuestions(updatedQuestions);
   };
 
   const handleQuestionChange = (index, field, value) => {
     const updatedQuestions = [...questions];
-    updatedQuestions[index][field] = value;
+    if (field === "correctAnswers") {
+      const currentIndex =
+        updatedQuestions[index].correctAnswers.indexOf(value);
+      if (currentIndex === -1) {
+        updatedQuestions[index].correctAnswers.push(value);
+      } else {
+        updatedQuestions[index].correctAnswers.splice(currentIndex, 1);
+      }
+    } else {
+      updatedQuestions[index][field] = value;
+    }
     setQuestions(updatedQuestions);
   };
 
@@ -54,9 +58,9 @@ export default function CreateExam({ categories }) {
     setQuestions(updatedQuestions);
   };
 
-  const handleExplanationChange = (index, field, value) => {
+  const handleExplanationChange = (index, value) => {
     const updatedQuestions = [...questions];
-    updatedQuestions[index][field] = value;
+    updatedQuestions[index].explanation = value;
     setQuestions(updatedQuestions);
   };
 
@@ -78,8 +82,9 @@ export default function CreateExam({ categories }) {
         if (!answer)
           newErrors[`answer${qIndex}${aIndex}`] = "Answer is required";
       });
-      if (!question.correctAnswer)
-        newErrors[`correctAnswer${qIndex}`] = "Correct answer is required";
+      if (question.correctAnswers.length === 0)
+        newErrors[`correctAnswers${qIndex}`] =
+          "At least one correct answer is required";
       if (!question.explanation)
         newErrors[`explanation${qIndex}`] = "Explanation is required";
     });
@@ -95,15 +100,19 @@ export default function CreateExam({ categories }) {
     formData.append("title", examTitle.title);
     formData.append("category", examTitle.category);
     formData.append("user", userId);
+
     questions.forEach((question, index) => {
-      formData.append(`questions`, question.image);
+      if (question.image) {
+        formData.append(`questionImage${index}`, question.image);
+      }
     });
+
     formData.append(
       "questionsData",
       JSON.stringify(
         questions.map((q) => ({
           answers: q.answers,
-          correctAnswer: q.correctAnswer,
+          correctAnswers: q.correctAnswers,
           explanation: q.explanation,
         }))
       )
@@ -122,21 +131,15 @@ export default function CreateExam({ categories }) {
 
       if (response.ok) {
         setMessages({ ...messages, message: data.message, error: "" });
-
-        setExamTitle({
-          title: "",
-          category: "",
-        });
-
+        setExamTitle({ title: "", category: "" });
         setQuestions([
           {
             image: null,
             answers: ["", "", "", ""],
-            correctAnswer: "",
+            correctAnswers: [],
             explanation: "",
           },
         ]);
-
         setErrors({});
       } else {
         console.error("Failed to save exam:", response.statusText);
@@ -144,7 +147,11 @@ export default function CreateExam({ categories }) {
       }
     } catch (error) {
       console.error("Error saving exam:", error);
-      setMessages({ ...messages, message: data.message, error: "" });
+      setMessages({
+        ...messages,
+        message: "Error saving exam",
+        error: error.message,
+      });
     }
   };
 
@@ -202,6 +209,9 @@ export default function CreateExam({ categories }) {
                   </option>
                 ))}
             </select>
+            {errors.category && (
+              <p className="text-red-500 text-sm">{errors.category}</p>
+            )}
           </div>
           {questions.map((question, qIndex) => (
             <div key={qIndex} className="space-y-8">
@@ -219,7 +229,7 @@ export default function CreateExam({ categories }) {
                 </p>
               )}
               {question.answers.map((answer, aIndex) => (
-                <div key={aIndex} className="space-y-2">
+                <div key={aIndex} className="space-y-2 flex items-center">
                   <input
                     type="text"
                     value={answer}
@@ -229,6 +239,21 @@ export default function CreateExam({ categories }) {
                     placeholder={`Answer ${aIndex + 1}`}
                     className="w-full px-3 py-2 border rounded-md focus:outline-green-500"
                   />
+                  <button
+                    type="button"
+                    onClick={() =>
+                      handleQuestionChange(qIndex, "correctAnswers", aIndex)
+                    }
+                    className={`ml-4 py-2 px-4 rounded-full ${
+                      question.correctAnswers.includes(aIndex)
+                        ? "bg-green-500 text-white"
+                        : "bg-gray-200 text-gray-600"
+                    }`}
+                  >
+                    {question.correctAnswers.includes(aIndex)
+                      ? "Selected"
+                      : "Select"}
+                  </button>
                   {errors[`answer${qIndex}${aIndex}`] && (
                     <p className="text-red-500 text-sm">
                       {errors[`answer${qIndex}${aIndex}`]}
@@ -236,50 +261,24 @@ export default function CreateExam({ categories }) {
                   )}
                 </div>
               ))}
-              <div className="space-y-2">
-                <select
-                  value={question.correctAnswer}
-                  onChange={(e) =>
-                    handleQuestionChange(
-                      qIndex,
-                      "correctAnswer",
-                      e.target.value
-                    )
-                  }
-                  className="px-3 py-2 border rounded-md focus:outline-green-500"
-                >
-                  <option value="">Select Correct Answer</option>
-                  {question.answers.map((_, aIndex) => (
-                    <option key={aIndex} value={aIndex}>{`Answer ${
-                      aIndex + 1
-                    }`}</option>
-                  ))}
-                </select>
-                {errors[`correctAnswer${qIndex}`] && (
-                  <p className="text-red-500 text-sm">
-                    {errors[`correctAnswer${qIndex}`]}
-                  </p>
-                )}
-              </div>
-              <div className="space-y-2">
-                <textarea
-                  value={question.explanation}
-                  onChange={(e) =>
-                    handleExplanationChange(
-                      qIndex,
-                      "explanation",
-                      e.target.value
-                    )
-                  }
-                  placeholder="explanation"
-                  className="w-full h-40 px-3 py-2 border rounded-md focus:outline-green-500"
-                />
-                {errors[`explanation${qIndex}`] && (
-                  <p className="text-red-500 text-sm">
-                    {errors[`explanation${qIndex}`]}
-                  </p>
-                )}
-              </div>
+              {errors[`correctAnswers${qIndex}`] && (
+                <p className="text-red-500 text-sm">
+                  Please select at least one correct answer
+                </p>
+              )}
+              <textarea
+                value={question.explanation}
+                onChange={(e) =>
+                  handleExplanationChange(qIndex, e.target.value)
+                }
+                placeholder="Explanation"
+                className="w-full px-3 py-2 border rounded-md focus:outline-green-500"
+              ></textarea>
+              {errors[`explanation${qIndex}`] && (
+                <p className="text-red-500 text-sm">
+                  {errors[`explanation${qIndex}`]}
+                </p>
+              )}
               {questions.length > 1 && (
                 <button
                   type="button"
