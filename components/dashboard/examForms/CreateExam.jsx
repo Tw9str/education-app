@@ -13,6 +13,7 @@ export default function CreateExam({ categories }) {
       answers: ["", "", "", ""],
       correctAnswers: [],
       explanation: "",
+      points: "",
     },
   ]);
   const [errors, setErrors] = useState({});
@@ -26,6 +27,7 @@ export default function CreateExam({ categories }) {
         answers: ["", "", "", ""],
         correctAnswers: [],
         explanation: "",
+        points: "",
       },
     ]);
   };
@@ -87,6 +89,9 @@ export default function CreateExam({ categories }) {
           "At least one correct answer is required";
       if (!question.explanation)
         newErrors[`explanation${qIndex}`] = "Explanation is required";
+      // Validate points
+      if (!question.points || isNaN(question.points) || question.points <= 0)
+        newErrors[`points${qIndex}`] = "Points must be a positive number";
     });
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -114,6 +119,7 @@ export default function CreateExam({ categories }) {
           answers: q.answers,
           correctAnswers: q.correctAnswers,
           explanation: q.explanation,
+          points: q.points,
         }))
       )
     );
@@ -138,6 +144,7 @@ export default function CreateExam({ categories }) {
             answers: ["", "", "", ""],
             correctAnswers: [],
             explanation: "",
+            points: 1,
           },
         ]);
         setErrors({});
@@ -215,9 +222,33 @@ export default function CreateExam({ categories }) {
           </div>
           {questions.map((question, qIndex) => (
             <div key={qIndex} className="space-y-8">
-              <label className="block mb-2 text-md font-bold text-gray-600">
-                Question {qIndex + 1}
-              </label>
+              <div className="flex items-center gap-8">
+                <label className="block mb-2 text-md font-bold text-gray-600">
+                  Question {qIndex + 1}
+                </label>
+                <div>
+                  <input
+                    type="number"
+                    min="0"
+                    value={question.points}
+                    onChange={(e) =>
+                      handleQuestionChange(
+                        qIndex,
+                        "points",
+                        parseFloat(e.target.value)
+                      )
+                    }
+                    placeholder="Points"
+                    className="w-24 mb-2 px-3 py-2 border rounded-md focus:outline-green-500"
+                  />
+
+                  {errors[`points${qIndex}`] && (
+                    <p className="text-red-500 text-sm">
+                      {errors[`points${qIndex}`]}
+                    </p>
+                  )}
+                </div>
+              </div>
               <input
                 type="file"
                 onChange={(e) => handleImageUpload(qIndex, e)}
@@ -229,16 +260,23 @@ export default function CreateExam({ categories }) {
                 </p>
               )}
               {question.answers.map((answer, aIndex) => (
-                <div key={aIndex} className="space-y-2 flex items-center">
-                  <input
-                    type="text"
-                    value={answer}
-                    onChange={(e) =>
-                      handleAnswerChange(qIndex, aIndex, e.target.value)
-                    }
-                    placeholder={`Answer ${aIndex + 1}`}
-                    className="w-full px-3 py-2 border rounded-md focus:outline-green-500"
-                  />
+                <div key={aIndex} className="flex">
+                  <div className="w-full space-y-2">
+                    <input
+                      type="text"
+                      value={answer}
+                      onChange={(e) =>
+                        handleAnswerChange(qIndex, aIndex, e.target.value)
+                      }
+                      placeholder={`Answer ${aIndex + 1}`}
+                      className="w-full px-3 py-2 border rounded-md focus:outline-green-500"
+                    />
+                    {errors[`answer${qIndex}${aIndex}`] && (
+                      <p className="text-red-500 text-sm">
+                        {errors[`answer${qIndex}${aIndex}`]}
+                      </p>
+                    )}
+                  </div>{" "}
                   <button
                     type="button"
                     onClick={() =>
@@ -254,11 +292,6 @@ export default function CreateExam({ categories }) {
                       ? "Selected"
                       : "Select"}
                   </button>
-                  {errors[`answer${qIndex}${aIndex}`] && (
-                    <p className="text-red-500 text-sm">
-                      {errors[`answer${qIndex}${aIndex}`]}
-                    </p>
-                  )}
                 </div>
               ))}
               {errors[`correctAnswers${qIndex}`] && (
@@ -272,7 +305,7 @@ export default function CreateExam({ categories }) {
                   handleExplanationChange(qIndex, e.target.value)
                 }
                 placeholder="Explanation"
-                className="w-full px-3 py-2 border rounded-md focus:outline-green-500"
+                className="w-full h-48 px-3 py-2 border rounded-md focus:outline-green-500"
               ></textarea>
               {errors[`explanation${qIndex}`] && (
                 <p className="text-red-500 text-sm">
