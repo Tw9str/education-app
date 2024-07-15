@@ -1,11 +1,15 @@
 "use client";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 
 export default function ExamCategories({ categories }) {
   const [categoryList, setCategoryList] = useState(categories);
   const token = useSelector((state) => state.auth.token);
+
+  useEffect(() => {
+    setCategoryList(categories);
+  }, [categories]);
 
   async function handleDeleteClick(id) {
     try {

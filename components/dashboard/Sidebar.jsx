@@ -8,7 +8,9 @@ export default function Sidebar() {
   const dispatch = useDispatch();
   return (
     <aside className="w-64 bg-white shadow-md">
-      <div className="p-4 font-bold text-lg border-b">Grillo Dashboard</div>
+      <Link href="/dashboard" className="block p-4 font-bold text-lg border-b">
+        Grillo Dashboard
+      </Link>
       <nav className="p-4">
         <ul className="space-y-4">
           <li>
@@ -29,12 +31,12 @@ export default function Sidebar() {
           </li>
           <li>
             <Link href="#" className="text-gray-600 hover:text-gray-800">
-              Link 3
+              Subscription
             </Link>
           </li>
           <li>
             <Link href="#" className="text-gray-600 hover:text-gray-800">
-              Link 4
+              Settings
             </Link>
           </li>
           <li>

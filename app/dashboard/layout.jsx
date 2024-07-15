@@ -1,6 +1,6 @@
 "use client";
 import Sidebar from "@/components/dashboard/Sidebar";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { redirect } from "next/navigation";
 
 export default function Layout({ children }) {

@@ -2,37 +2,32 @@
 import Notification from "@/components/widgets/Notification";
 import { useState } from "react";
 
-export default function AddCategory() {
+export default function AddCategory({ onCategoryAdded }) {
   const [categoryTitle, setCategoryTitle] = useState("");
-  const [messages, setMessages] = useState({
-    message: "",
-    error: "",
-  });
+  const [messages, setMessages] = useState({ message: "", error: "" });
   const [isNotificationOn, setIsNotificationOn] = useState(false);
 
   async function handleFormSubmit(e) {
     e.preventDefault();
     setIsNotificationOn(true);
-    const formData = new FormData();
-    formData.append("title", categoryTitle);
 
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_API_BASE}/api/category/add`,
       {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ title: categoryTitle }),
       }
     );
 
     const data = await response.json();
+    setMessages({
+      message: data.message,
+      error: response.ok ? "" : data.error,
+    });
     if (response.ok) {
       setCategoryTitle("");
-      setMessages({ ...messages, message: data.message, error: "" });
-    } else {
-      setMessages({ ...messages, message: data.message, error: data.error });
+      onCategoryAdded?.();
     }
   }
 

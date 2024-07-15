@@ -17,6 +17,7 @@ export default function CreateExam({ categories }) {
     },
   ]);
   const [errors, setErrors] = useState({});
+  const token = useSelector((state) => state.auth.token);
   const userId = useSelector((state) => state.auth.user?._id);
 
   const addQuestion = () => {
@@ -129,6 +130,9 @@ export default function CreateExam({ categories }) {
         `${process.env.NEXT_PUBLIC_API_BASE}/api/create-exam`,
         {
           method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
           body: formData,
         }
       );
@@ -260,7 +264,7 @@ export default function CreateExam({ categories }) {
                 </p>
               )}
               {question.answers.map((answer, aIndex) => (
-                <div key={aIndex} className="flex">
+                <div key={aIndex} className="flex items-start">
                   <div className="w-full space-y-2">
                     <input
                       type="text"
