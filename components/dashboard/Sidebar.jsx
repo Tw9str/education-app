@@ -3,6 +3,13 @@ import { setLogout } from "@/state/authSlice";
 import Link from "next/link";
 import React from "react";
 import { useDispatch } from "react-redux";
+import {
+  EosIconsContentNew,
+  HealthiconsIExamMultipleChoiceOutline,
+  CharmGem,
+  MaterialSymbolsSettingsOutline,
+  MaterialSymbolsLogout,
+} from "@/components/widgets/Icons";
 
 export default function Sidebar() {
   const dispatch = useDispatch();
@@ -12,50 +19,30 @@ export default function Sidebar() {
         Grillo Dashboard
       </Link>
       <nav className="p-4">
-        <ul className="space-y-4">
-          <li>
-            <Link
-              href="/dashboard/create-exam"
-              className="text-gray-600 hover:text-gray-800"
-            >
-              Create exam
-            </Link>
+        <ul>
+          <li className="flex items-center gap-2 uppercase font-bold rounded p-2 text-gray-600 hover:bg-gray-200 hover:text-gray-900">
+            <EosIconsContentNew />
+            <Link href="/dashboard/create-exam">Create</Link>
           </li>
-          <li>
-            <Link
-              href="/dashboard/exams"
-              className="text-gray-600 hover:text-gray-800"
-            >
-              Exams
-            </Link>
+          <li className="flex items-center gap-2 uppercase font-bold rounded p-2 text-gray-600 hover:bg-gray-200 hover:text-gray-900">
+            <HealthiconsIExamMultipleChoiceOutline />
+            <Link href="/dashboard/exams">Exams</Link>
           </li>
-          <li>
-            <Link href="#" className="text-gray-600 hover:text-gray-800">
-              Subscription
-            </Link>
+          <li className="flex items-center gap-2 uppercase font-bold rounded p-2 text-gray-600 hover:bg-gray-200 hover:text-gray-900">
+            <CharmGem />
+            <Link href="#">Subscription</Link>
           </li>
-          <li>
-            <Link href="#" className="text-gray-600 hover:text-gray-800">
-              Settings
-            </Link>
+          <li className="flex items-center gap-2 uppercase font-bold rounded p-2 text-gray-600 hover:bg-gray-200 hover:text-gray-900">
+            <MaterialSymbolsSettingsOutline />
+            <Link href="#">Settings</Link>
           </li>
-          <li>
+          <li className="uppercase font-bold rounded p-2 text-gray-600 hover:bg-gray-200 hover:text-gray-900">
             <button
               onClick={() => dispatch(setLogout())}
               type="button"
-              className="flex justify-center items-center text-gray-600 hover:text-gray-800"
+              className="flex justify-center items-center"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="2rem"
-                height="2rem"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  fill="black"
-                  d="M5 21q-.825 0-1.412-.587T3 19V5q0-.825.588-1.412T5 3h7v2H5v14h7v2zm11-4l-1.375-1.45l2.55-2.55H9v-2h8.175l-2.55-2.55L16 7l5 5z"
-                ></path>
-              </svg>
+              <MaterialSymbolsLogout />
               Logout
             </button>
           </li>
