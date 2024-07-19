@@ -26,7 +26,6 @@ export default function Timer() {
   return (
     <div className="flex justify-around items-center gap-2">
       <MaterialSymbolsTimerOutline />
-      <h1>Time remaining:</h1>
       <div>
         {hours.toString().padStart(2, "0")}:
         {minutes.toString().padStart(2, "0")}:
