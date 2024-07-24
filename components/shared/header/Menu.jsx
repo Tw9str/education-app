@@ -29,8 +29,8 @@ export default function Menu() {
       </button>
       <ul
         className={`${
-          isOpen ? "block" : "hidden"
-        } bg-gray-50 md:bg-transparent p-8 md:p-0 shadow-2xl md:shadow-none rounded-xl absolute top-12 right-0 z-50 md:static flex flex-col md:flex-row justify-center items-center gap-8 md:gap-4 lg:gap-8 font-medium`}
+          isOpen ? "flex" : "hidden"
+        } md:flex bg-gray-50 md:bg-transparent p-8 md:p-0 shadow-2xl md:shadow-none rounded-xl absolute top-12 right-0 z-50 md:static flex-col md:flex-row justify-center items-center gap-8 md:gap-4 lg:gap-8 font-medium`}
       >
         <li className="border-b-2 border-b-transparent hover:border-b-2 hover:border-green-500 hover:text-green-500 duration-300">
           <Link className="py-4" href="/">

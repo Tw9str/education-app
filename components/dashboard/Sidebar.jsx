@@ -2,7 +2,7 @@
 import { setLogout } from "@/state/authSlice";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   EosIconsContentNew,
   HealthiconsIExamMultipleChoiceOutline,
@@ -14,6 +14,7 @@ import {
 export default function Sidebar() {
   const pathname = usePathname();
   const dispatch = useDispatch();
+  const role = useSelector((state) => state.auth.user.role);
 
   const linkClasses = (path) =>
     `flex items-center gap-2 uppercase font-bold rounded p-2 text-gray-600 hover:bg-green-400 hover:text-gray-900 ${
@@ -27,10 +28,12 @@ export default function Sidebar() {
       </Link>
       <nav className="p-4">
         <ul className="space-y-1">
-          <li className={linkClasses("/dashboard/create-exam")}>
-            <EosIconsContentNew />
-            <Link href="/dashboard/create-exam">Create</Link>
-          </li>
+          {role !== "student" && (
+            <li className={linkClasses("/dashboard/create-exam")}>
+              <EosIconsContentNew />
+              <Link href="/dashboard/create-exam">Create</Link>
+            </li>
+          )}
           <li className={linkClasses("/dashboard/exams")}>
             <HealthiconsIExamMultipleChoiceOutline />
             <Link href="/dashboard/exams">Exams</Link>

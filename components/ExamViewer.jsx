@@ -220,6 +220,7 @@ import {
   MaterialSymbolsPauseOutline,
   MaterialSymbolsPlayArrowOutline,
 } from "@/app/(home)/trial/Icons";
+import EndScreen from "./EndScreen";
 
 export default function ExamViewer({ exam }) {
   const [selectedAnswers, setSelectedAnswers] = useState([]);
@@ -343,8 +344,8 @@ export default function ExamViewer({ exam }) {
 
   return (
     <div className="bg-white p-4 rounded-lg shadow-lg">
-      <div className="flex justify-between items-center p-4 border border-gray-100 rounded-lg">
-        <div className="flex flex-col justify-center basis-1/2 gap-4">
+      <div className="grid xl:grid-cols-2 justify-center items-center p-4 border border-gray-100 rounded-lg">
+        <div className="flex flex-col justify-center gap-4">
           <div className="flex justify-around items-center gap-2 rounded-lg text-white bg-orange-500 p-4">
             <span className="uppercase">points: {currentQuestion?.points}</span>
             <Timer />
@@ -418,24 +419,17 @@ export default function ExamViewer({ exam }) {
             )}
           </div>
         </div>
-        <div className="basis-1/2">
+        <div className="hidden xl:block">
           <ExamSvg />
         </div>
       </div>
-      {isPaused ? (
+      {isPaused && (
         <OverlayAlert
           title="Pause Exam"
           description="Are you sure you want to pause the exam?"
         />
-      ) : null}
-      {showTotalPoints && (
-        <div className="fixed bottom-4 right-4 bg-white p-4 rounded-lg shadow-lg">
-          <h2 className="text-xl font-bold">Total Points</h2>
-          <p className="text-lg">
-            You have scored {totalPoints.toFixed(2)} points.
-          </p>
-        </div>
       )}
+      {showTotalPoints && <EndScreen totalPoints={totalPoints} />}
     </div>
   );
 }
