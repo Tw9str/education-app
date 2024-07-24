@@ -4,7 +4,7 @@ import { useState } from "react";
 import Sign from "./Sign";
 
 export default function Menu() {
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
   function handleMenuOpen() {
     setIsOpen((prev) => !prev);
   }
