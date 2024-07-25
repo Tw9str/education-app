@@ -31,26 +31,34 @@ export default function Sidebar() {
           {role !== "student" && (
             <li className={linkClasses("/dashboard/create-exam")}>
               <EosIconsContentNew />
-              <Link href="/dashboard/create-exam">Create</Link>
+              <Link className="w-full" href="/dashboard/create-exam">
+                Create
+              </Link>
             </li>
           )}
           <li className={linkClasses("/dashboard/exams")}>
             <HealthiconsIExamMultipleChoiceOutline />
-            <Link href="/dashboard/exams">Exams</Link>
+            <Link className="w-full" href="/dashboard/exams">
+              Exams
+            </Link>
           </li>
           <li className={linkClasses("#subscription")}>
             <CharmGem />
-            <Link href="#subscription">Subscription</Link>
+            <Link className="w-full" href="#subscription">
+              Subscription
+            </Link>
           </li>
           <li className={linkClasses("#settings")}>
             <MaterialSymbolsSettingsOutline />
-            <Link href="#settings">Settings</Link>
+            <Link className="w-full" href="#settings">
+              Settings
+            </Link>
           </li>
           <li className="uppercase font-bold rounded p-2 text-gray-600 hover:bg-gray-200 hover:text-gray-900">
             <button
               onClick={() => dispatch(setLogout())}
               type="button"
-              className="flex justify-center items-center"
+              className="flex items-center w-full"
             >
               <MaterialSymbolsLogout />
               Logout
