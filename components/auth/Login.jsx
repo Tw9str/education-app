@@ -75,7 +75,6 @@ export default function Login() {
               placeholder="example@domain.com"
               className="w-full px-3 py-2 border rounded-md focus:outline-green-500"
               onChange={handleInputChange}
-              required
               aria-required="true"
             />
           </div>
@@ -99,7 +98,6 @@ export default function Login() {
               placeholder="*****"
               className="w-full px-3 py-2 border rounded-md focus:outline-green-500"
               onChange={handleInputChange}
-              required
               aria-required="true"
             />
           </div>

@@ -28,7 +28,7 @@ export default function Plan({ popular }) {
         reprehenderit?
       </p>
       <p>
-        <span className="font-bold text-4xl">$58</span>
+        <span className="font-bold text-4xl">Lei58</span>
         <span className="font-semibold text-sm text-neutral-600">/month</span>
       </p>
       <ul className="text-neutral-600">

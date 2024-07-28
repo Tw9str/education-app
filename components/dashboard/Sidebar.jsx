@@ -9,6 +9,7 @@ import {
   CharmGem,
   MaterialSymbolsSettingsOutline,
   MaterialSymbolsLogout,
+  MingcuteEditLine,
 } from "@/components/widgets/Icons";
 
 export default function Sidebar() {
@@ -24,17 +25,25 @@ export default function Sidebar() {
   return (
     <aside className="w-64 bg-white shadow-md">
       <Link href="/dashboard" className="block p-4 font-bold text-lg border-b">
-        Grillo Dashboard
+        Grile Dashboard
       </Link>
       <nav className="p-4">
         <ul className="space-y-1">
           {role !== "student" && (
-            <li className={linkClasses("/dashboard/create-exam")}>
-              <EosIconsContentNew />
-              <Link className="w-full" href="/dashboard/create-exam">
-                Create
-              </Link>
-            </li>
+            <>
+              <li className={linkClasses("/dashboard/create-exam")}>
+                <EosIconsContentNew />
+                <Link className="w-full" href="/dashboard/create-exam">
+                  Create
+                </Link>
+              </li>
+              <li className={linkClasses("/dashboard/manage")}>
+                <MingcuteEditLine />
+                <Link className="w-full" href="/dashboard/manage">
+                  Manage
+                </Link>
+              </li>
+            </>
           )}
           <li className={linkClasses("/dashboard/exams")}>
             <HealthiconsIExamMultipleChoiceOutline />
@@ -42,15 +51,15 @@ export default function Sidebar() {
               Exams
             </Link>
           </li>
-          <li className={linkClasses("#subscription")}>
+          <li className={linkClasses("/dashboard/subscription")}>
             <CharmGem />
-            <Link className="w-full" href="#subscription">
+            <Link className="w-full" href="/dashboard/subscription">
               Subscription
             </Link>
           </li>
-          <li className={linkClasses("#settings")}>
+          <li className={linkClasses("/dashboard/settings")}>
             <MaterialSymbolsSettingsOutline />
-            <Link className="w-full" href="#settings">
+            <Link className="w-full" href="/dashboard/settings">
               Settings
             </Link>
           </li>

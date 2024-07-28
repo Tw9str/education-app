@@ -5,7 +5,7 @@ import Providers from "@/components/providers";
 const rubik = Rubik({ subsets: ["latin"] });
 
 export const metadata = {
-  title: "Grillo Info",
+  title: "Grile Info",
   description: "SEO friendly description",
 };
 
