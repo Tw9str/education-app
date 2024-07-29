@@ -1,13 +1,6 @@
 import React from "react";
 
-export default function OverlayAlert({
-  title,
-  description,
-  onConfirm,
-  onCancel,
-  confirmButtonColor,
-  iconColor,
-}) {
+const ConfirmModal = ({ onConfirm, onCancel, role, setRole }) => {
   return (
     <div
       className="relative z-10"
@@ -21,13 +14,9 @@ export default function OverlayAlert({
           <div className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
             <div className="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
               <div className="sm:flex sm:items-start">
-                <div
-                  className={`mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full ${
-                    iconColor ? "bg-orange-100" : "bg-red-100"
-                  } sm:mx-0 sm:h-10 sm:w-10`}
-                >
+                <div className="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-blue-100 sm:mx-0 sm:h-10 sm:w-10">
                   <svg
-                    className={`h-6 w-6 ${iconColor || "text-red-500"}`}
+                    className="h-6 w-6 text-blue-500"
                     fill="none"
                     viewBox="0 0 24 24"
                     strokeWidth="1.5"
@@ -46,10 +35,18 @@ export default function OverlayAlert({
                     className="text-base font-semibold leading-6 text-gray-900"
                     id="modal-title"
                   >
-                    {title}
+                    Select Role for Promotion
                   </h3>
                   <div className="mt-2">
-                    <p className="text-sm text-gray-500">{description}</p>
+                    <select
+                      className="w-full p-2 border rounded"
+                      value={role}
+                      onChange={(e) => setRole(e.target.value)}
+                    >
+                      <option value="student">Student</option>
+                      <option value="teacher">Teacher</option>
+                      <option value="admin">Admin</option>
+                    </select>
                   </div>
                 </div>
               </div>
@@ -57,11 +54,7 @@ export default function OverlayAlert({
             <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
               <button
                 type="button"
-                className={`inline-flex w-full justify-center rounded-md ${
-                  confirmButtonColor
-                    ? confirmButtonColor + " hover:bg-orange-300"
-                    : "bg-red-500 hover:bg-red-400"
-                } px-3 py-2 text-sm font-semibold text-white shadow-sm sm:ml-3 sm:w-auto`}
+                className="inline-flex w-full justify-center rounded-md bg-blue-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-600 sm:ml-3 sm:w-auto"
                 onClick={onConfirm}
               >
                 Confirm
@@ -79,4 +72,6 @@ export default function OverlayAlert({
       </div>
     </div>
   );
-}
+};
+
+export default ConfirmModal;

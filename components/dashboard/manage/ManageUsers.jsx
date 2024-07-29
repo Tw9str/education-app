@@ -1,10 +1,17 @@
 "use client";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
+import { PromoteIcon, DeleteIcon } from "../Icons";
+import OverlayAlert from "@/components/widgets/OverlayAlert";
+import ConfirmModal from "@/components/widgets/ConfirmModal";
 
 const ManageUsers = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showOverlay, setShowOverlay] = useState(false);
+  const [userToDelete, setUserToDelete] = useState(null);
+  const [userToPromote, setUserToPromote] = useState(null);
+  const [role, setRole] = useState("student");
   const token = useSelector((state) => state.auth.token);
 
   useEffect(() => {
@@ -25,26 +32,65 @@ const ManageUsers = () => {
     fetchUsers();
   }, []);
 
-  const deleteUser = async (id) => {
-    if (confirm("Are you sure you want to delete this user?")) {
-      await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/users/${id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      setUsers(users.filter((user) => user._id !== id));
-    }
+  const confirmDelete = (id) => {
+    setShowOverlay(true);
+    setUserToDelete(id);
   };
 
-  const promoteUser = async (id) => {
-    await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/users/promote/${id}`, {
-      method: "PATCH",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    // Update user list or user state as necessary
+  const handleConfirmDelete = async () => {
+    if (userToDelete) {
+      await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE}/api/users/${userToDelete}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setUsers(users.filter((user) => user._id !== userToDelete));
+    }
+    setShowOverlay(false);
+    setUserToDelete(null);
+  };
+
+  const handleCancel = () => {
+    setShowOverlay(false);
+    setUserToDelete(null);
+    setUserToPromote(null);
+  };
+
+  const promoteUser = async () => {
+    if (userToPromote) {
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_BASE}/api/users/promote/${userToPromote}`,
+          {
+            method: "PATCH",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ role }),
+          }
+        );
+
+        if (response.ok) {
+          const updatedUser = await response.json();
+          setUsers(
+            users.map((user) =>
+              user._id === updatedUser._id ? updatedUser : user
+            )
+          );
+        } else {
+          console.error("Failed to promote user:", response.statusText);
+        }
+      } catch (error) {
+        console.error("Error promoting user:", error);
+      } finally {
+        setUserToPromote(null);
+      }
+    }
   };
 
   if (loading) return <div className="text-center">Loading...</div>;
@@ -58,6 +104,7 @@ const ManageUsers = () => {
             <th className="p-4 text-left">Username</th>
             <th className="p-4 text-left">Email</th>
             <th className="p-4 text-left">Role</th>
+            <th className="p-4 text-left">Created At</th>
             <th className="p-4 text-left">Actions</th>
           </tr>
         </thead>
@@ -67,24 +114,43 @@ const ManageUsers = () => {
               <td className="p-4">{user.username}</td>
               <td className="p-4">{user.email}</td>
               <td className="p-4">{user.role}</td>
+              <td className="p-4">
+                {new Date(user.createdAt).toLocaleDateString()}
+              </td>
               <td className="p-4 flex gap-2">
                 <button
-                  className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-                  onClick={() => promoteUser(user._id)}
+                  className="flex items-center bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                  onClick={() => setUserToPromote(user._id)}
                 >
-                  Promote
+                  <PromoteIcon />
                 </button>
                 <button
-                  className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-                  onClick={() => deleteUser(user._id)}
+                  className="flex items-center bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                  onClick={() => confirmDelete(user._id)}
                 >
-                  Delete
+                  <DeleteIcon />
                 </button>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
+      {showOverlay && (
+        <OverlayAlert
+          title="Confirm Deletion"
+          description="Are you sure you want to delete this user?"
+          onConfirm={handleConfirmDelete}
+          onCancel={handleCancel}
+        />
+      )}
+      {userToPromote && (
+        <ConfirmModal
+          onConfirm={promoteUser}
+          onCancel={handleCancel}
+          role={role}
+          setRole={setRole}
+        />
+      )}
     </div>
   );
 };

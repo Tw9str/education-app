@@ -178,6 +178,10 @@ export default function ExamViewer({ exam }) {
         <OverlayAlert
           title="Pause Exam"
           description="Are you sure you want to pause the exam?"
+          onConfirm={""}
+          onCancel={""}
+          confirmButtonColor="bg-orange-400"
+          iconColor="text-orange-400"
         />
       )}
     </div>
