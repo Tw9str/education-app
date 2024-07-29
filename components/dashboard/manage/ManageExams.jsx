@@ -1,33 +1,13 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import { EditIcon, DeleteIcon } from "../Icons";
 import OverlayAlert from "@/components/widgets/OverlayAlert";
 
-const ManageExams = () => {
-  const [exams, setExams] = useState([]);
-  const [loading, setLoading] = useState(true);
+const ManageExams = ({ exams, onDelete }) => {
+  const token = useSelector((state) => state.auth.token);
   const [showOverlay, setShowOverlay] = useState(false);
   const [examToDelete, setExamToDelete] = useState(null);
-  const token = useSelector((state) => state.auth.token);
-
-  useEffect(() => {
-    const fetchExams = async () => {
-      try {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_BASE}/api/exams`
-        );
-        const data = await response.json();
-        setExams(data);
-      } catch (error) {
-        console.error("Error fetching exams:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchExams();
-  }, []);
 
   const confirmDelete = (id) => {
     setShowOverlay(true);
@@ -45,10 +25,10 @@ const ManageExams = () => {
           },
         }
       );
-      setExams(exams.filter((exam) => exam._id !== examToDelete));
+      onDelete(examToDelete); // Update parent state
+      setShowOverlay(false);
+      setExamToDelete(null);
     }
-    setShowOverlay(false);
-    setExamToDelete(null);
   };
 
   const handleCancel = () => {
@@ -56,7 +36,9 @@ const ManageExams = () => {
     setExamToDelete(null);
   };
 
-  if (loading) return <div className="text-center">Loading...</div>;
+  const editExam = (id) => {
+    // Add your edit logic here
+  };
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-lg">
@@ -72,7 +54,7 @@ const ManageExams = () => {
           </tr>
         </thead>
         <tbody>
-          {exams.length > 0 &&
+          {Array.isArray(exams) ? (
             exams.map((exam) => (
               <tr key={exam._id} className="border-b">
                 <td className="p-4">{exam.title}</td>
@@ -96,7 +78,14 @@ const ManageExams = () => {
                   </button>
                 </td>
               </tr>
-            ))}
+            ))
+          ) : (
+            <tr>
+              <td colSpan="5" className="text-center p-4">
+                No exams available
+              </td>
+            </tr>
+          )}
         </tbody>
       </table>
       {showOverlay && (

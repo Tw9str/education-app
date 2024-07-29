@@ -1,36 +1,16 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import { PromoteIcon, DeleteIcon } from "../Icons";
 import OverlayAlert from "@/components/widgets/OverlayAlert";
 import ConfirmModal from "@/components/widgets/ConfirmModal";
 
-const ManageUsers = () => {
-  const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
+const ManageUsers = ({ users, onDelete, onPromote }) => {
+  const token = useSelector((state) => state.auth.token);
   const [showOverlay, setShowOverlay] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
   const [userToPromote, setUserToPromote] = useState(null);
   const [role, setRole] = useState("student");
-  const token = useSelector((state) => state.auth.token);
-
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_BASE}/api/users`
-        );
-        const data = await response.json();
-        setUsers(data);
-      } catch (error) {
-        console.error("Error fetching users:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUsers();
-  }, []);
 
   const confirmDelete = (id) => {
     setShowOverlay(true);
@@ -48,10 +28,10 @@ const ManageUsers = () => {
           },
         }
       );
-      setUsers(users.filter((user) => user._id !== userToDelete));
+      onDelete(userToDelete); // Update parent state
+      setShowOverlay(false);
+      setUserToDelete(null);
     }
-    setShowOverlay(false);
-    setUserToDelete(null);
   };
 
   const handleCancel = () => {
@@ -76,12 +56,7 @@ const ManageUsers = () => {
         );
 
         if (response.ok) {
-          const updatedUser = await response.json();
-          setUsers(
-            users.map((user) =>
-              user._id === updatedUser._id ? updatedUser : user
-            )
-          );
+          onPromote(userToPromote, role); // Update parent state
         } else {
           console.error("Failed to promote user:", response.statusText);
         }
@@ -92,8 +67,6 @@ const ManageUsers = () => {
       }
     }
   };
-
-  if (loading) return <div className="text-center">Loading...</div>;
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-lg">

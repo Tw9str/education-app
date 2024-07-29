@@ -1,33 +1,13 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import { DeleteIcon, EditIcon } from "../Icons";
 import OverlayAlert from "@/components/widgets/OverlayAlert";
 
-const ManageCategories = () => {
-  const [categories, setCategories] = useState([]);
+const ManageCategories = ({ categories, onDelete }) => {
   const token = useSelector((state) => state.auth.token);
-  const [loading, setLoading] = useState(true);
   const [showOverlay, setShowOverlay] = useState(false);
   const [categoryToDelete, setCategoryToDelete] = useState(null);
-
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_BASE}/api/categories`
-        );
-        const data = await response.json();
-        setCategories(data);
-      } catch (error) {
-        console.error("Error fetching categories:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchCategories();
-  }, []);
 
   const confirmDelete = (id) => {
     setShowOverlay(true);
@@ -45,12 +25,10 @@ const ManageCategories = () => {
           },
         }
       );
-      setCategories(
-        categories.filter((category) => category._id !== categoryToDelete)
-      );
+      onDelete(categoryToDelete); // Update parent state
+      setShowOverlay(false);
+      setCategoryToDelete(null);
     }
-    setShowOverlay(false);
-    setCategoryToDelete(null);
   };
 
   const handleCancel = () => {
@@ -61,8 +39,6 @@ const ManageCategories = () => {
   const editCategory = (id) => {
     // Add your edit logic here
   };
-
-  if (loading) return <div className="text-center">Loading...</div>;
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-lg">
@@ -77,29 +53,37 @@ const ManageCategories = () => {
           </tr>
         </thead>
         <tbody>
-          {categories.map((category) => (
-            <tr key={category._id} className="border-b">
-              <td className="p-4">{category.title}</td>
-              <td className="p-4">{category.isVisible ? "Yes" : "No"}</td>
-              <td className="p-4">
-                {new Date(category.createdAt).toLocaleDateString()}
-              </td>
-              <td className="p-4 flex gap-2">
-                <button
-                  className="flex items-center bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-                  onClick={() => editCategory(category._id)}
-                >
-                  <EditIcon />
-                </button>
-                <button
-                  className="flex items-center bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-                  onClick={() => confirmDelete(category._id)}
-                >
-                  <DeleteIcon />
-                </button>
+          {Array.isArray(categories) && categories.length > 0 ? (
+            categories.map((category) => (
+              <tr key={category._id} className="border-b">
+                <td className="p-4">{category.title}</td>
+                <td className="p-4">{category.isVisible ? "Yes" : "No"}</td>
+                <td className="p-4">
+                  {new Date(category.createdAt).toLocaleDateString()}
+                </td>
+                <td className="p-4 flex gap-2">
+                  <button
+                    className="flex items-center bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                    onClick={() => editCategory(category._id)}
+                  >
+                    <EditIcon />
+                  </button>
+                  <button
+                    className="flex items-center bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                    onClick={() => confirmDelete(category._id)}
+                  >
+                    <DeleteIcon />
+                  </button>
+                </td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan="4" className="text-center p-4">
+                No categories available
               </td>
             </tr>
-          ))}
+          )}
         </tbody>
       </table>
       {showOverlay && (
