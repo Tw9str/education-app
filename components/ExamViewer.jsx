@@ -82,9 +82,7 @@ export default function ExamViewer({ exam }) {
   return (
     <div className="bg-white p-4 rounded-lg shadow-lg">
       <div
-        className={`grid ${
-          !showTotalPoints && "xl:grid-cols-2"
-        } justify-center items-center p-4 border border-gray-100 rounded-lg`}
+        className={`grid justify-center items-center p-4 border border-gray-100 rounded-lg`}
       >
         {showTotalPoints ? (
           <EndScreen
@@ -107,7 +105,7 @@ export default function ExamViewer({ exam }) {
               src={`${process.env.NEXT_PUBLIC_API_BASE}/questions/${currentQuestion?.image}`}
               width={800}
               height={800}
-              alt=""
+              alt="question"
             />
             <ul className="flex flex-col gap-2 text-white">
               {currentQuestion?.answers.map((answer, index) => (
@@ -170,9 +168,9 @@ export default function ExamViewer({ exam }) {
             </div>
           </div>
         )}
-        <div className={`${showTotalPoints ? "hidden" : "xl:block"} hidden`}>
+        {/* <div className={`${showTotalPoints ? "hidden" : "xl:block"} hidden`}>
           <ExamSvg />
-        </div>
+        </div> */}
       </div>
       {isPaused && (
         <OverlayAlert

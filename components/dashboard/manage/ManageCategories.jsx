@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 import { DeleteIcon, EditIcon } from "../Icons";
 import OverlayAlert from "@/components/widgets/OverlayAlert";
 
-const ManageCategories = ({ categories, onDelete }) => {
+const ManageCategories = ({ categories, onDelete, onUpdate }) => {
   const token = useSelector((state) => state.auth.token);
   const [showOverlay, setShowOverlay] = useState(false);
   const [categoryToDelete, setCategoryToDelete] = useState(null);
@@ -25,7 +25,7 @@ const ManageCategories = ({ categories, onDelete }) => {
           },
         }
       );
-      onDelete(categoryToDelete); // Update parent state
+      onDelete(categoryToDelete);
       setShowOverlay(false);
       setCategoryToDelete(null);
     }
@@ -36,8 +36,34 @@ const ManageCategories = ({ categories, onDelete }) => {
     setCategoryToDelete(null);
   };
 
-  const editCategory = (id) => {
-    // Add your edit logic here
+  const handlePlanChange = async (categoryId, newPlan) => {
+    await fetch(
+      `${process.env.NEXT_PUBLIC_API_BASE}/api/categories/update/${categoryId}`,
+      {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ plan: newPlan }),
+      }
+    );
+    onUpdate(categoryId, { plan: newPlan });
+  };
+
+  const handleVisibilityChange = async (categoryId, newVisibility) => {
+    await fetch(
+      `${process.env.NEXT_PUBLIC_API_BASE}/api/categories/update/${categoryId}`,
+      {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ isVisible: newVisibility }),
+      }
+    );
+    onUpdate(categoryId, { isVisible: newVisibility });
   };
 
   return (
@@ -47,6 +73,7 @@ const ManageCategories = ({ categories, onDelete }) => {
         <thead>
           <tr className="bg-gray-100 border-b">
             <th className="p-4 text-left">Title</th>
+            <th className="p-4 text-left">Plan</th>
             <th className="p-4 text-left">Visible</th>
             <th className="p-4 text-left">Created At</th>
             <th className="p-4 text-left">Actions</th>
@@ -57,7 +84,36 @@ const ManageCategories = ({ categories, onDelete }) => {
             categories.map((category) => (
               <tr key={category._id} className="border-b">
                 <td className="p-4">{category.title}</td>
-                <td className="p-4">{category.isVisible ? "Yes" : "No"}</td>
+                <td className="p-4">
+                  <select
+                    value={category.plan}
+                    onChange={(e) =>
+                      handlePlanChange(category._id, e.target.value)
+                    }
+                    className="border-none appearance-none bg-transparent p-2 cursor-pointer focus:outline-none"
+                    style={{ WebkitAppearance: "none", MozAppearance: "none" }}
+                  >
+                    <option value="free">free</option>
+                    <option value="basic">basic</option>
+                    <option value="premium">premium</option>
+                  </select>
+                </td>
+                <td className="p-4">
+                  <select
+                    value={category.isVisible ? "Yes" : "No"}
+                    onChange={(e) =>
+                      handleVisibilityChange(
+                        category._id,
+                        e.target.value === "Yes"
+                      )
+                    }
+                    className="border-none appearance-none bg-transparent p-2 cursor-pointer focus:outline-none"
+                    style={{ WebkitAppearance: "none", MozAppearance: "none" }}
+                  >
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                  </select>
+                </td>
                 <td className="p-4">
                   {new Date(category.createdAt).toLocaleDateString()}
                 </td>
@@ -79,7 +135,7 @@ const ManageCategories = ({ categories, onDelete }) => {
             ))
           ) : (
             <tr>
-              <td colSpan="4" className="text-center p-4">
+              <td colSpan="5" className="text-center p-4">
                 No categories available
               </td>
             </tr>

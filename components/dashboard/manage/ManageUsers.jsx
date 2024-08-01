@@ -1,11 +1,11 @@
 "use client";
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
-import { PromoteIcon, DeleteIcon } from "../Icons";
-import OverlayAlert from "@/components/widgets/OverlayAlert";
-import ConfirmModal from "@/components/widgets/ConfirmModal";
+import { PromoteIcon, DeleteIcon } from "../icons";
+import OverlayAlert from "@/components/widgets/overlayalert";
+import ConfirmModal from "@/components/widgets/confirmmodal";
 
-const ManageUsers = ({ users, onDelete, onPromote }) => {
+const ManageUsers = ({ users, onDelete, onPromote, onUpdate }) => {
   const token = useSelector((state) => state.auth.token);
   const [showOverlay, setShowOverlay] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
@@ -68,6 +68,30 @@ const ManageUsers = ({ users, onDelete, onPromote }) => {
     }
   };
 
+  const updatePlan = async (userId, newPlan) => {
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE}/api/users/update/${userId}`,
+        {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ plan: newPlan }),
+        }
+      );
+
+      if (response.ok) {
+        onUpdate(userId, { plan: newPlan }); // Update parent state
+      } else {
+        console.error("Failed to update user plan:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Error updating user plan:", error);
+    }
+  };
+
   return (
     <div className="bg-white p-6 rounded-lg shadow-lg">
       <h2 className="text-2xl font-semibold mb-4">Manage Users</h2>
@@ -77,6 +101,7 @@ const ManageUsers = ({ users, onDelete, onPromote }) => {
             <th className="p-4 text-left">Username</th>
             <th className="p-4 text-left">Email</th>
             <th className="p-4 text-left">Role</th>
+            <th className="p-4 text-left">Plan</th>
             <th className="p-4 text-left">Created At</th>
             <th className="p-4 text-left">Actions</th>
           </tr>
@@ -87,6 +112,18 @@ const ManageUsers = ({ users, onDelete, onPromote }) => {
               <td className="p-4">{user.username}</td>
               <td className="p-4">{user.email}</td>
               <td className="p-4">{user.role}</td>
+              <td className="p-4">
+                <select
+                  value={user.plan}
+                  onChange={(e) => updatePlan(user._id, e.target.value)}
+                  className="border-none appearance-none bg-transparent p-2 cursor-pointer focus:outline-none"
+                  style={{ WebkitAppearance: "none", MozAppearance: "none" }}
+                >
+                  <option value="free">free</option>
+                  <option value="basic">basic</option>
+                  <option value="premium">premium</option>
+                </select>
+              </td>
               <td className="p-4">
                 {new Date(user.createdAt).toLocaleDateString()}
               </td>

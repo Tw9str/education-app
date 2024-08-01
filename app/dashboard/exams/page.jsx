@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import ExamCategories from "@/components/dashboard/examForms/ExamCategories";
 import { fetchCategories } from "@/utils/fetchCategories";
+import NoData from "@/components/shared/NoData";
 
 export default function ExamCategoriesPage() {
   const [categories, setCategories] = useState([]);
@@ -13,11 +14,15 @@ export default function ExamCategoriesPage() {
     };
 
     updateCategories();
-  }, []);
+  }, [categories]);
 
   return (
     <section className="flex-1 p-4">
-      <ExamCategories categories={categories} />
+      {categories.length > 0 ? (
+        <ExamCategories categories={categories} />
+      ) : (
+        <NoData description={"No Exams available."} />
+      )}
     </section>
   );
 }

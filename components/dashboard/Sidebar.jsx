@@ -19,7 +19,7 @@ export default function Sidebar() {
 
   const linkClasses = (path) =>
     `flex items-center gap-2 uppercase font-bold rounded p-2 text-gray-600 hover:bg-green-400 hover:text-gray-900 ${
-      pathname === path ? "bg-green-400 text-gray-900" : ""
+      pathname.includes(path) ? "bg-green-400 text-gray-900" : ""
     }`;
 
   return (

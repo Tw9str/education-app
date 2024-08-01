@@ -46,8 +46,24 @@ export default function Manage() {
     );
   };
 
+  const handleCategoryUpdate = (id, updatedFields) => {
+    setCategories((prevCategories) =>
+      prevCategories.map((category) =>
+        category._id === id ? { ...category, ...updatedFields } : category
+      )
+    );
+  };
+
   const handleExamDelete = (id) => {
     setExams((prevExams) => prevExams.filter((exam) => exam._id !== id));
+  };
+
+  const handleExamUpdate = (id, updatedFields) => {
+    setExams((prevExams) =>
+      prevExams.map((exam) =>
+        exam._id === id ? { ...exam, ...updatedFields } : exam
+      )
+    );
   };
 
   const handleUserDelete = (id) => {
@@ -62,6 +78,14 @@ export default function Manage() {
     );
   };
 
+  const handleUserUpdate = (id, updatedFields) => {
+    setUsers((prevUsers) =>
+      prevUsers.map((user) =>
+        user._id === id ? { ...user, ...updatedFields } : user
+      )
+    );
+  };
+
   if (loading) return <LoadingSpinner />;
 
   return (
@@ -71,12 +95,18 @@ export default function Manage() {
         <ManageCategories
           categories={categories}
           onDelete={handleCategoryDelete}
+          onUpdate={handleCategoryUpdate}
         />
-        <ManageExams exams={exams} onDelete={handleExamDelete} />
+        <ManageExams
+          exams={exams}
+          onDelete={handleExamDelete}
+          onUpdate={handleExamUpdate}
+        />
         <ManageUsers
           users={users}
           onDelete={handleUserDelete}
           onPromote={handleUserPromote}
+          onUpdate={handleUserUpdate}
         />
       </div>
     </div>

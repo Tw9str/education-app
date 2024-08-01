@@ -10,7 +10,6 @@ export default function Register() {
     password: "",
   });
   const [message, setMessage] = useState({});
-  console.log(message);
   const [loading, setLoading] = useState(false);
   const [passwordValidation, setPasswordValidation] = useState({
     length: false,

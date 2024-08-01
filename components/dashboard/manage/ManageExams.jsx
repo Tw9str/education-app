@@ -1,10 +1,11 @@
 "use client";
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
+import Link from "next/link";
 import { EditIcon, DeleteIcon } from "../Icons";
 import OverlayAlert from "@/components/widgets/OverlayAlert";
 
-const ManageExams = ({ exams, onDelete }) => {
+const ManageExams = ({ exams, onDelete, onUpdate }) => {
   const token = useSelector((state) => state.auth.token);
   const [showOverlay, setShowOverlay] = useState(false);
   const [examToDelete, setExamToDelete] = useState(null);
@@ -25,7 +26,7 @@ const ManageExams = ({ exams, onDelete }) => {
           },
         }
       );
-      onDelete(examToDelete); // Update parent state
+      onDelete(examToDelete);
       setShowOverlay(false);
       setExamToDelete(null);
     }
@@ -36,8 +37,34 @@ const ManageExams = ({ exams, onDelete }) => {
     setExamToDelete(null);
   };
 
-  const editExam = (id) => {
-    // Add your edit logic here
+  const handlePlanChange = async (examId, newPlan) => {
+    await fetch(
+      `${process.env.NEXT_PUBLIC_API_BASE}/api/exams/exam/edit/${examId}`,
+      {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ plan: newPlan }),
+      }
+    );
+    onUpdate(examId, { plan: newPlan });
+  };
+
+  const handleVisibilityChange = async (examId, newVisibility) => {
+    await fetch(
+      `${process.env.NEXT_PUBLIC_API_BASE}/api/exams/exam/edit/${examId}`,
+      {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ isVisible: newVisibility }),
+      }
+    );
+    onUpdate(examId, { isVisible: newVisibility });
   };
 
   return (
@@ -49,6 +76,8 @@ const ManageExams = ({ exams, onDelete }) => {
             <th className="p-4 text-left">Title</th>
             <th className="p-4 text-left">Category</th>
             <th className="p-4 text-left">User</th>
+            <th className="p-4 text-left">Plan</th>
+            <th className="p-4 text-left">Visible</th>
             <th className="p-4 text-left">Created At</th>
             <th className="p-4 text-left">Actions</th>
           </tr>
@@ -58,18 +87,43 @@ const ManageExams = ({ exams, onDelete }) => {
             exams.map((exam) => (
               <tr key={exam._id} className="border-b">
                 <td className="p-4">{exam.title}</td>
-                <td className="p-4">{exam.category.title}</td>
+                <td className="p-4">{exam.category?.title}</td>
                 <td className="p-4">{exam.user.username}</td>
+                <td className="p-4">
+                  <select
+                    value={exam.plan}
+                    onChange={(e) => handlePlanChange(exam._id, e.target.value)}
+                    className="border-none appearance-none bg-transparent p-2 cursor-pointer focus:outline-none"
+                    style={{ WebkitAppearance: "none", MozAppearance: "none" }}
+                  >
+                    <option value="free">free</option>
+                    <option value="basic">basic</option>
+                    <option value="premium">premium</option>
+                  </select>
+                </td>
+                <td className="p-4">
+                  <select
+                    value={exam.isVisible ? "Yes" : "No"}
+                    onChange={(e) =>
+                      handleVisibilityChange(exam._id, e.target.value === "Yes")
+                    }
+                    className="border-none appearance-none bg-transparent p-2 cursor-pointer focus:outline-none"
+                    style={{ WebkitAppearance: "none", MozAppearance: "none" }}
+                  >
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                  </select>
+                </td>
                 <td className="p-4">
                   {new Date(exam.createdAt).toLocaleDateString()}
                 </td>
                 <td className="p-4 flex gap-2">
-                  <button
+                  <Link
+                    href={`exams/category/${exam.slug}?mode=edit`}
                     className="flex items-center bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-                    onClick={() => editExam(exam._id)}
                   >
                     <EditIcon />
-                  </button>
+                  </Link>
                   <button
                     className="flex items-center bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
                     onClick={() => confirmDelete(exam._id)}
@@ -81,7 +135,7 @@ const ManageExams = ({ exams, onDelete }) => {
             ))
           ) : (
             <tr>
-              <td colSpan="5" className="text-center p-4">
+              <td colSpan="7" className="text-center p-4">
                 No exams available
               </td>
             </tr>

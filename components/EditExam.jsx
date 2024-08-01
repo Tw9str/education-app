@@ -1,10 +1,10 @@
 "use client";
 import Notification from "@/components/widgets/Notification";
 import Image from "next/image";
-import React, { useRef, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 
-export default function CreateExam({ categories }) {
+export default function EditExam({ exam, categories }) {
   const [isNotificationOn, setIsNotificationOn] = useState(false);
   const [messages, setMessages] = useState({ message: "", error: "" });
   const [examTitle, setExamTitle] = useState({ title: "", category: "" });
@@ -21,8 +21,18 @@ export default function CreateExam({ categories }) {
   const [errors, setErrors] = useState({});
   const token = useSelector((state) => state.auth.token);
   const userId = useSelector((state) => state.auth.user?._id);
-  const fileInputRefs = useRef([]);
 
+  useEffect(() => {
+    setExamTitle({ title: exam.title, category: exam.category });
+    const parsedQuestions = exam.questions.map((q) => ({
+      ...q,
+      correctAnswers: q.correctAnswers.map((answer) => parseInt(answer, 10)),
+      imagePreview: q.image
+        ? `${process.env.NEXT_PUBLIC_API_BASE}/questions/${q.image}`
+        : null, // Assuming images are stored in a specific directory
+    }));
+    setQuestions(parsedQuestions);
+  }, [exam]);
   const addQuestion = () => {
     setQuestions([
       ...questions,
@@ -73,11 +83,10 @@ export default function CreateExam({ categories }) {
 
   const handleImageUpload = (index, event) => {
     const file = event.target.files[0];
+    const filePreview = URL.createObjectURL(file);
     const updatedQuestions = [...questions];
-    if (file) {
-      updatedQuestions[index].image = file;
-      updatedQuestions[index].imagePreview = URL.createObjectURL(file);
-    }
+    updatedQuestions[index].image = file;
+    updatedQuestions[index].imagePreview = filePreview;
     setQuestions(updatedQuestions);
   };
 
@@ -86,7 +95,7 @@ export default function CreateExam({ categories }) {
     if (!examTitle.title) newErrors.examTitle = "Exam title is required";
     if (!examTitle.category) newErrors.category = "Exam category is required";
     questions.forEach((question, qIndex) => {
-      if (!question.image)
+      if (!question.image && !question.imagePreview)
         newErrors[`questionImage${qIndex}`] = "Image is required";
       question.answers.forEach((answer, aIndex) => {
         if (!answer)
@@ -114,7 +123,7 @@ export default function CreateExam({ categories }) {
     formData.append("user", userId);
 
     questions.forEach((question, index) => {
-      if (question.image) {
+      if (question.image instanceof File) {
         formData.append(`questionImage${index}`, question.image);
       }
     });
@@ -127,15 +136,16 @@ export default function CreateExam({ categories }) {
           correctAnswers: q.correctAnswers,
           explanation: q.explanation,
           points: q.points,
+          image: typeof q.image === "string" ? q.image : "",
         }))
       )
     );
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE}/api/exams/create-exam`,
+        `${process.env.NEXT_PUBLIC_API_BASE}/api/exams/exam/edit/${exam._id}`,
         {
-          method: "POST",
+          method: "PUT",
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -147,39 +157,25 @@ export default function CreateExam({ categories }) {
 
       if (response.ok) {
         setMessages({ ...messages, message: data.message, error: "" });
-        setExamTitle({ title: "", category: "" });
-        setQuestions([
-          {
-            image: null,
-            imagePreview: null,
-            answers: ["", "", "", ""],
-            correctAnswers: [],
-            explanation: "",
-            points: 1,
-          },
-        ]);
-        setErrors({});
-        // Reset file inputs
-        fileInputRefs.current.forEach((ref) => (ref.value = ""));
       } else {
-        console.error("Failed to save exam:", response.statusText);
+        console.error("Failed to update exam:", response.statusText);
         setMessages({ ...messages, message: data.message, error: "" });
       }
     } catch (error) {
-      console.error("Error saving exam:", error);
+      console.error("Error updating exam:", error);
       setMessages({
         ...messages,
-        message: "Error saving exam",
+        message: "Error updating exam",
         error: error.message,
       });
     }
   };
 
   return (
-    <div className="w-full lg:w-2/3 p-8 bg-white rounded-lg shadow-md">
+    <div className="w-full lg:w-2/3 p-8 mt-8 mx-auto bg-white rounded-lg shadow-md">
       <div className="text-center mb-8">
-        <h1 className="text-4xl font-bold my-3">Create Exam</h1>
-        <p className="text-sm text-gray-600">Enter exam details</p>
+        <h1 className="text-4xl font-bold my-3">Edit Exam</h1>
+        <p className="text-sm text-gray-600">Edit exam details</p>
       </div>
       <form className="space-y-8">
         <div className="space-y-8">
@@ -254,7 +250,6 @@ export default function CreateExam({ categories }) {
                     placeholder="Points"
                     className="w-24 mb-2 px-3 py-2 border rounded-md focus:outline-green-500"
                   />
-
                   {errors[`points${qIndex}`] && (
                     <p className="text-red-500 text-sm">
                       {errors[`points${qIndex}`]}
@@ -262,27 +257,28 @@ export default function CreateExam({ categories }) {
                   )}
                 </div>
               </div>
-              <input
-                type="file"
-                ref={(el) => (fileInputRefs.current[qIndex] = el)}
-                onChange={(e) => handleImageUpload(qIndex, e)}
-                className="w-full px-3 py-2 border rounded-md focus:outline-green-500"
-              />
-              {errors[`questionImage${qIndex}`] && (
-                <p className="text-red-500 text-sm">
-                  {errors[`questionImage${qIndex}`]}
-                </p>
-              )}
-              {question.imagePreview && (
-                <div className="mt-2">
-                  <Image
-                    src={question.imagePreview}
-                    alt={`Preview ${qIndex}`}
-                    width={1200}
-                    height={1200}
-                  />
-                </div>
-              )}
+              <div className="mb-4">
+                <input
+                  type="file"
+                  onChange={(e) => handleImageUpload(qIndex, e)}
+                  className="w-full px-3 py-2 border rounded-md focus:outline-green-500"
+                />
+                {errors[`questionImage${qIndex}`] && (
+                  <p className="text-red-500 text-sm">
+                    {errors[`questionImage${qIndex}`]}
+                  </p>
+                )}
+                {question.imagePreview && (
+                  <div className="mt-2">
+                    <Image
+                      src={question.imagePreview}
+                      alt={`Preview for question ${qIndex + 1}`}
+                      width={1200}
+                      height={1200}
+                    />
+                  </div>
+                )}
+              </div>
               {question.answers.map((answer, aIndex) => (
                 <div key={aIndex} className="flex items-start">
                   <div className="w-full space-y-2">
@@ -300,7 +296,7 @@ export default function CreateExam({ categories }) {
                         {errors[`answer${qIndex}${aIndex}`]}
                       </p>
                     )}
-                  </div>{" "}
+                  </div>
                   <button
                     type="button"
                     onClick={() =>
@@ -361,7 +357,7 @@ export default function CreateExam({ categories }) {
             onClick={handleSubmit}
             className="rounded-full text-white ml-0 sm:ml-8 font-semibold bg-green-500 py-4 px-6 shadow-md hover:bg-green-400 duration-300"
           >
-            Save Exam
+            Save Changes
           </button>
         </div>
       </form>
