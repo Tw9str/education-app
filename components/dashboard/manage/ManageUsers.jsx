@@ -1,9 +1,9 @@
 "use client";
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
-import { PromoteIcon, DeleteIcon } from "../icons";
-import OverlayAlert from "@/components/widgets/overlayalert";
-import ConfirmModal from "@/components/widgets/confirmmodal";
+import { PromoteIcon, DeleteIcon } from "../Icons";
+import OverlayAlert from "@/components/widgets/OverlayAlert";
+import ConfirmModal from "@/components/widgets/ConfirmModal";
 
 const ManageUsers = ({ users, onDelete, onPromote, onUpdate }) => {
   const token = useSelector((state) => state.auth.token);
