@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
 
 const Settings = () => {
   // Initial state
@@ -15,20 +16,15 @@ const Settings = () => {
     confirmPassword: "",
   });
 
-  // Fetch user data from the backend (mocking the data fetch here)
+  const user = useSelector((state) => state.auth.user);
+
   useEffect(() => {
     const fetchData = async () => {
-      // Replace this with your actual API call
-      const response = {
-        createdAt: "2024-07-28T15:35:29.602Z",
-        email: "test@test.com",
-        password: "$2b$10$z5MUh6",
-        plan: "free",
-        role: "admin",
-        updatedAt: "2024-08-01T04:16:48.902Z",
-        username: "admin",
-      };
-      setUserData(response);
+      try {
+        setUserData(user);
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
     };
 
     fetchData();
