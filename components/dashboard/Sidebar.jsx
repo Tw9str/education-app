@@ -15,7 +15,7 @@ import {
 export default function Sidebar() {
   const pathname = usePathname();
   const dispatch = useDispatch();
-  const user = useSelector((state) => state.auth.user);
+  const { role, email } = useSelector((state) => state.auth.user);
   const CUSTOMER_PORTAL_LINK =
     process.env.NEXT_PUBLIC_STRIPE_CUSTOMER_PORTAL_LINK;
 
@@ -31,7 +31,7 @@ export default function Sidebar() {
       </Link>
       <nav className="p-4">
         <ul className="space-y-1">
-          {user.role !== "student" && (
+          {role !== "student" && (
             <>
               <li className={linkClasses("/dashboard/create-exam")}>
                 <EosIconsContentNew />
@@ -53,19 +53,19 @@ export default function Sidebar() {
               Exams
             </Link>
           </li>
-          <li className={linkClasses("/dashboard/subscription")}>
+          <li className="flex items-center gap-2 uppercase font-bold rounded p-2 text-gray-600 hover:bg-green-400 hover:text-gray-900">
             <CharmGem />
-            <Link className="w-full" href="/dashboard/subscription">
+            <Link
+              className="w-full"
+              href={`${CUSTOMER_PORTAL_LINK}?prefilled_email=${email}`}
+              target="_blank"
+            >
               Subscription
             </Link>
           </li>
-          <li className="flex items-center gap-2 uppercase font-bold rounded p-2 text-gray-600 hover:bg-green-400 hover:text-gray-900">
+          <li className={linkClasses("/dashboard/settings")}>
             <MaterialSymbolsSettingsOutline />
-            <Link
-              className="w-full"
-              href={`${CUSTOMER_PORTAL_LINK}?prefilled_email=${user.email}`}
-              target="_blank"
-            >
+            <Link className="w-full" href="/dashboard/settings">
               Settings
             </Link>
           </li>
