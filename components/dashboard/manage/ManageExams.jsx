@@ -4,6 +4,7 @@ import { useSelector } from "react-redux";
 import Link from "next/link";
 import { EditIcon, DeleteIcon } from "../Icons";
 import OverlayAlert from "@/components/widgets/OverlayAlert";
+import NoData from "@/components/shared/NoData";
 
 const ManageExams = ({ exams, onDelete, onUpdate }) => {
   const token = useSelector((state) => state.auth.token);
@@ -136,7 +137,7 @@ const ManageExams = ({ exams, onDelete, onUpdate }) => {
           ) : (
             <tr>
               <td colSpan="7" className="text-center p-4">
-                No exams available
+                <NoData description="No exams available" />
               </td>
             </tr>
           )}

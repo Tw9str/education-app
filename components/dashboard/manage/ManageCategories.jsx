@@ -3,11 +3,14 @@ import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import { DeleteIcon, EditIcon } from "../Icons";
 import OverlayAlert from "@/components/widgets/OverlayAlert";
+import NoData from "@/components/shared/NoData";
 
 const ManageCategories = ({ categories, onDelete, onUpdate }) => {
   const token = useSelector((state) => state.auth.token);
   const [showOverlay, setShowOverlay] = useState(false);
   const [categoryToDelete, setCategoryToDelete] = useState(null);
+  const [editingCategoryId, setEditingCategoryId] = useState(null);
+  const [newTitle, setNewTitle] = useState("");
 
   const confirmDelete = (id) => {
     setShowOverlay(true);
@@ -20,9 +23,7 @@ const ManageCategories = ({ categories, onDelete, onUpdate }) => {
         `${process.env.NEXT_PUBLIC_API_BASE}/api/categories/delete/${categoryToDelete}`,
         {
           method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
       onDelete(categoryToDelete);
@@ -31,12 +32,7 @@ const ManageCategories = ({ categories, onDelete, onUpdate }) => {
     }
   };
 
-  const handleCancel = () => {
-    setShowOverlay(false);
-    setCategoryToDelete(null);
-  };
-
-  const handlePlanChange = async (categoryId, newPlan) => {
+  const handleUpdate = async (categoryId, data) => {
     await fetch(
       `${process.env.NEXT_PUBLIC_API_BASE}/api/categories/update/${categoryId}`,
       {
@@ -45,26 +41,23 @@ const ManageCategories = ({ categories, onDelete, onUpdate }) => {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ plan: newPlan }),
+        body: JSON.stringify(data),
       }
     );
-    onUpdate(categoryId, { plan: newPlan });
+    onUpdate(categoryId, data);
+    setEditingCategoryId(null);
   };
 
-  const handleVisibilityChange = async (categoryId, newVisibility) => {
-    await fetch(
-      `${process.env.NEXT_PUBLIC_API_BASE}/api/categories/update/${categoryId}`,
-      {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ isVisible: newVisibility }),
-      }
-    );
-    onUpdate(categoryId, { isVisible: newVisibility });
+  const handleEditClick = (category) => {
+    setEditingCategoryId(category._id);
+    setNewTitle(category.title);
   };
+
+  const handleTitleChange = (e) => setNewTitle(e.target.value);
+  const handleTitleBlur = (categoryId) =>
+    handleUpdate(categoryId, { title: newTitle });
+  const handleTitleKeyPress = (e, categoryId) =>
+    e.key === "Enter" && handleUpdate(categoryId, { title: newTitle });
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-lg">
@@ -83,12 +76,31 @@ const ManageCategories = ({ categories, onDelete, onUpdate }) => {
           {Array.isArray(categories) && categories.length > 0 ? (
             categories.map((category) => (
               <tr key={category._id} className="border-b">
-                <td className="p-4">{category.title}</td>
+                <td className="p-4">
+                  {editingCategoryId === category._id ? (
+                    <input
+                      type="text"
+                      value={newTitle}
+                      onChange={handleTitleChange}
+                      onBlur={() => handleTitleBlur(category._id)}
+                      onKeyDown={(e) => handleTitleKeyPress(e, category._id)}
+                      className="border p-2 rounded"
+                      autoFocus
+                    />
+                  ) : (
+                    <span
+                      onClick={() => handleEditClick(category)}
+                      className="cursor-pointer"
+                    >
+                      {category.title}
+                    </span>
+                  )}
+                </td>
                 <td className="p-4">
                   <select
                     value={category.plan}
                     onChange={(e) =>
-                      handlePlanChange(category._id, e.target.value)
+                      handleUpdate(category._id, { plan: e.target.value })
                     }
                     className="border-none appearance-none bg-transparent p-2 cursor-pointer focus:outline-none"
                     style={{ WebkitAppearance: "none", MozAppearance: "none" }}
@@ -102,10 +114,9 @@ const ManageCategories = ({ categories, onDelete, onUpdate }) => {
                   <select
                     value={category.isVisible ? "Yes" : "No"}
                     onChange={(e) =>
-                      handleVisibilityChange(
-                        category._id,
-                        e.target.value === "Yes"
-                      )
+                      handleUpdate(category._id, {
+                        isVisible: e.target.value === "Yes",
+                      })
                     }
                     className="border-none appearance-none bg-transparent p-2 cursor-pointer focus:outline-none"
                     style={{ WebkitAppearance: "none", MozAppearance: "none" }}
@@ -120,7 +131,7 @@ const ManageCategories = ({ categories, onDelete, onUpdate }) => {
                 <td className="p-4 flex gap-2">
                   <button
                     className="flex items-center bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-                    onClick={() => editCategory(category._id)}
+                    onClick={() => handleEditClick(category)}
                   >
                     <EditIcon />
                   </button>
@@ -136,7 +147,7 @@ const ManageCategories = ({ categories, onDelete, onUpdate }) => {
           ) : (
             <tr>
               <td colSpan="5" className="text-center p-4">
-                No categories available
+                <NoData description="No categories available" />
               </td>
             </tr>
           )}
@@ -147,7 +158,7 @@ const ManageCategories = ({ categories, onDelete, onUpdate }) => {
           title="Confirm Deletion"
           description="Are you sure you want to delete this category?"
           onConfirm={handleConfirm}
-          onCancel={handleCancel}
+          onCancel={() => setShowOverlay(false)}
         />
       )}
     </div>

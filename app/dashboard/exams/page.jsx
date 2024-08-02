@@ -14,14 +14,16 @@ export default function ExamCategoriesPage() {
     };
 
     updateCategories();
-  }, [categories]);
+  }, []);
+
+  const visibleCategories = categories.filter((category) => category.isVisible);
 
   return (
     <section className="flex-1 p-4">
-      {categories.length > 0 ? (
-        <ExamCategories categories={categories} />
+      {visibleCategories.length > 0 ? (
+        <ExamCategories categories={visibleCategories} />
       ) : (
-        <NoData description={"No Exams available."} />
+        <NoData description="No Exams available." />
       )}
     </section>
   );

@@ -1,7 +1,12 @@
 import React from "react";
 import Image from "next/image";
 
-export default function EndScreen({ exam, totalPoints, selectedAnswers }) {
+export default function EndScreen({
+  exam,
+  totalPoints,
+  selectedAnswers,
+  questionPoints,
+}) {
   return (
     <div className="bg-gray-50 min-h-screen flex flex-col items-center p-6">
       <div className="w-full max-w-4xl bg-white p-6 rounded-lg shadow-lg">
@@ -20,6 +25,7 @@ export default function EndScreen({ exam, totalPoints, selectedAnswers }) {
         {exam.questions.map((question, questionIndex) => {
           const selected = selectedAnswers[questionIndex] || [];
           const correct = question.correctAnswers.map(String);
+          const earnedPoints = questionPoints[questionIndex] || 0;
 
           return (
             <div
@@ -31,7 +37,11 @@ export default function EndScreen({ exam, totalPoints, selectedAnswers }) {
                   Question {questionIndex + 1}:
                 </span>{" "}
                 {question.points} points. You earned:
-                <span className="font-semibold text-blue-600"> 0</span> points
+                <span className="font-semibold text-blue-600">
+                  {" "}
+                  {earnedPoints.toFixed(2)}
+                </span>{" "}
+                points
               </div>
               {question.image && (
                 <Image

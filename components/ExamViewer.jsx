@@ -20,6 +20,7 @@ export default function ExamViewer({ exam }) {
   const [answers, setAnswers] = useState([]);
   const [totalPoints, setTotalPoints] = useState(0);
   const [showTotalPoints, setShowTotalPoints] = useState(false);
+  const [questionPoints, setQuestionPoints] = useState([]); // New state for storing points of each question
 
   const handleAnswerSelect = (value) => {
     setSelectedAnswers((prevSelected) =>
@@ -38,6 +39,7 @@ export default function ExamViewer({ exam }) {
     const points = calculatePoints(selectedAnswers, currentQuestion);
     setTotalPoints((prevPoints) => prevPoints + points);
     setAnswers((prev) => [...prev, selectedAnswers]);
+    setQuestionPoints((prevPoints) => [...prevPoints, points]); // Save the points for the current question
     setSelectedAnswers([]);
     setCurrentQuestionIndex((prevIndex) => prevIndex + 1);
   };
@@ -47,6 +49,7 @@ export default function ExamViewer({ exam }) {
     const points = calculatePoints(selectedAnswers, currentQuestion);
     const finalPoints = totalPoints + points;
     setAnswers((prev) => [...prev, selectedAnswers]);
+    setQuestionPoints((prevPoints) => [...prevPoints, points]); // Save the points for the current question
 
     try {
       const response = await fetch(
@@ -59,6 +62,7 @@ export default function ExamViewer({ exam }) {
           body: JSON.stringify({
             answers: [...answers, selectedAnswers],
             points: finalPoints,
+            questionPoints: [...questionPoints, points], // Send the array of points for each question
           }),
         }
       );
@@ -89,6 +93,7 @@ export default function ExamViewer({ exam }) {
             exam={exam}
             totalPoints={totalPoints}
             selectedAnswers={answers}
+            questionPoints={questionPoints}
           />
         ) : (
           <div className="flex flex-col justify-center gap-4">

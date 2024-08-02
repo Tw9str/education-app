@@ -1,8 +1,14 @@
 import ExamBox from "@/components/dashboard/ExamBox";
 import { fetchCategoryExams } from "@/utils/fetchCategoryExams";
+import NoData from "@/components/shared/NoData";
 
 export default async function Category({ params }) {
   const categoryExams = await fetchCategoryExams(params.category);
+
+  // Ensure we're filtering based on the correct field name and its value
+  const visibleExams =
+    Array.isArray(categoryExams) &&
+    categoryExams.filter((exam) => exam.isVisible === true);
 
   return (
     <section className="flex-1 text-center mb-8 p-4">
@@ -12,10 +18,10 @@ export default async function Category({ params }) {
         </h1>
       </header>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 justify-center items-center">
-        {categoryExams?.length > 0 ? (
-          categoryExams.map((exam) => <ExamBox exam={exam} key={exam._id} />)
+        {visibleExams.length > 0 ? (
+          visibleExams.map((exam) => <ExamBox exam={exam} key={exam._id} />)
         ) : (
-          <p>No exams available for this category.</p>
+          <NoData description={"No exams available for this category."} />
         )}
       </div>
     </section>
