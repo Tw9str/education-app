@@ -1,11 +1,17 @@
 "use client";
+
 import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import ExamCategories from "@/components/dashboard/examForms/ExamCategories";
-import { fetchCategories } from "@/utils/fetchCategories";
 import NoData from "@/components/shared/NoData";
+import { fetchCategories } from "@/utils/fetchCategories";
 
 export default function ExamCategoriesPage() {
   const [categories, setCategories] = useState([]);
+  const { plan } = useSelector((state) => state.auth.user);
+
+  const PLANS = ["free", "basic", "premium"];
+  const userPlanIndex = PLANS.indexOf(plan);
 
   useEffect(() => {
     const updateCategories = async () => {
@@ -16,7 +22,10 @@ export default function ExamCategoriesPage() {
     updateCategories();
   }, []);
 
-  const visibleCategories = categories.filter((category) => category.isVisible);
+  const visibleCategories = categories.filter(
+    (category) =>
+      category.isVisible && userPlanIndex >= PLANS.indexOf(category.plan)
+  );
 
   return (
     <section className="flex-1 p-4">
