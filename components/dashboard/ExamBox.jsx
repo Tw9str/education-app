@@ -17,7 +17,7 @@ export default function ExamBox({
       <article className="exam-box">
         <div className="exam-details">
           <p>
-            <strong>{category.title.replace("-", " ")}</strong>
+            <strong>{category.title.replace(/-/g, " ")}</strong>
           </p>
           <figcaption className=" flex items-center mt-6">
             <div className="relative w-12 h-12">

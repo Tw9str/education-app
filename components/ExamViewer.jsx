@@ -1,17 +1,17 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import EndScreen from "./EndScreen";
 import OverlayAlert from "@/components/widgets/OverlayAlert";
 import Timer from "@/app/(home)/trial/Timer";
 import { calculatePoints } from "@/utils/calculatePoints";
-import ExamSvg from "@/app/(home)/trial/ExamSvg";
 import {
   CarbonNextOutline,
   FormkitSubmit,
   MaterialSymbolsPauseOutline,
   MaterialSymbolsPlayArrowOutline,
 } from "@/app/(home)/trial/Icons";
+import { useSelector } from "react-redux";
 
 export default function ExamViewer({ exam }) {
   const [selectedAnswers, setSelectedAnswers] = useState([]);
@@ -20,7 +20,34 @@ export default function ExamViewer({ exam }) {
   const [answers, setAnswers] = useState([]);
   const [totalPoints, setTotalPoints] = useState(0);
   const [showTotalPoints, setShowTotalPoints] = useState(false);
-  const [questionPoints, setQuestionPoints] = useState([]); // New state for storing points of each question
+  const [questionPoints, setQuestionPoints] = useState([]);
+  const [timeRemaining, setTimeRemaining] = useState(exam.duration * 60);
+  const [showOverlay, setShowOverlay] = useState(false);
+  const { user, token } = useSelector((state) => state.auth);
+  const userId = user._id;
+
+  useEffect(() => {
+    const fetchSession = async () => {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE}/api/exams/session?userId=${userId}&examId=${exam._id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      const session = await response.json();
+      if (session) {
+        setTimeRemaining(session.remainingTime);
+        setIsPaused(session.isPaused);
+        setCurrentQuestionIndex(session.currentQuestionIndex);
+        setAnswers(session.selectedAnswers);
+        setTotalPoints(session.totalPoints);
+        setQuestionPoints(session.questionPoints);
+      }
+    };
+    fetchSession();
+  }, [userId, exam._id]);
 
   const handleAnswerSelect = (value) => {
     setSelectedAnswers((prevSelected) =>
@@ -31,7 +58,35 @@ export default function ExamViewer({ exam }) {
   };
 
   const handlePauseButton = () => {
-    setIsPaused((prev) => !prev);
+    if (!isPaused) {
+      setShowOverlay(true);
+    } else {
+      handleConfirmPause();
+    }
+  };
+
+  const handleConfirmPause = async () => {
+    const newPauseState = !isPaused;
+    setIsPaused(newPauseState);
+    setShowOverlay(false);
+
+    await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/exams/store-session`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        userId,
+        examId: exam._id,
+        remainingTime: timeRemaining,
+        isPaused: newPauseState,
+        currentQuestionIndex,
+        selectedAnswers: answers,
+        totalPoints,
+        questionPoints,
+      }),
+    });
   };
 
   const handleNextQuestion = () => {
@@ -39,7 +94,7 @@ export default function ExamViewer({ exam }) {
     const points = calculatePoints(selectedAnswers, currentQuestion);
     setTotalPoints((prevPoints) => prevPoints + points);
     setAnswers((prev) => [...prev, selectedAnswers]);
-    setQuestionPoints((prevPoints) => [...prevPoints, points]); // Save the points for the current question
+    setQuestionPoints((prevPoints) => [...prevPoints, points]);
     setSelectedAnswers([]);
     setCurrentQuestionIndex((prevIndex) => prevIndex + 1);
   };
@@ -49,23 +104,27 @@ export default function ExamViewer({ exam }) {
     const points = calculatePoints(selectedAnswers, currentQuestion);
     const finalPoints = totalPoints + points;
     setAnswers((prev) => [...prev, selectedAnswers]);
-    setQuestionPoints((prevPoints) => [...prevPoints, points]); // Save the points for the current question
+    setQuestionPoints((prevPoints) => [...prevPoints, points]);
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE}/submit-answers`,
+        `${process.env.NEXT_PUBLIC_API_BASE}/api/exams/submit-exam`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
           body: JSON.stringify({
+            userId,
+            examId: exam._id,
             answers: [...answers, selectedAnswers],
             points: finalPoints,
-            questionPoints: [...questionPoints, points], // Send the array of points for each question
+            questionPoints: [...questionPoints, points],
           }),
         }
       );
+
       const result = await response.json();
       console.log("Submission result:", result);
     } catch (error) {
@@ -85,9 +144,7 @@ export default function ExamViewer({ exam }) {
 
   return (
     <div className="bg-white p-4 rounded-lg shadow-lg">
-      <div
-        className={`grid justify-center items-center p-4 border border-gray-100 rounded-lg`}
-      >
+      <div className="grid justify-center items-center p-4 border border-gray-100 rounded-lg">
         {showTotalPoints ? (
           <EndScreen
             exam={exam}
@@ -99,19 +156,25 @@ export default function ExamViewer({ exam }) {
           <div className="flex flex-col justify-center gap-4">
             <div className="flex justify-around items-center gap-2 rounded-lg text-white bg-orange-500 p-4">
               <span className="uppercase">
-                points: {currentQuestion?.points}
+                Points: {currentQuestion?.points}
               </span>
-              <Timer />
+              <Timer
+                initialTime={timeRemaining}
+                isPaused={isPaused}
+                onTimeChange={setTimeRemaining}
+              />
               <span>
                 {currentQuestionIndex + 1} of {exam.questions.length}
               </span>
             </div>
-            <Image
-              src={`${process.env.NEXT_PUBLIC_API_BASE}/questions/${currentQuestion?.image}`}
-              width={800}
-              height={800}
-              alt="question"
-            />
+            {currentQuestion?.image && (
+              <Image
+                src={`${process.env.NEXT_PUBLIC_API_BASE}/questions/${currentQuestion.image}`}
+                width={800}
+                height={800}
+                alt="question"
+              />
+            )}
             <ul className="flex flex-col gap-2 text-white">
               {currentQuestion?.answers.map((answer, index) => (
                 <li
@@ -119,10 +182,7 @@ export default function ExamViewer({ exam }) {
                   className={`${
                     selectedAnswers.includes(index.toString())
                       ? "bg-orange-500"
-                      : "bg-green-500"
-                  } ${
-                    !selectedAnswers.includes(index.toString()) &&
-                    "hover:bg-green-400"
+                      : "bg-green-500 hover:bg-green-400"
                   } rounded-lg p-4 border border-gray-100 cursor-pointer duration-300`}
                   onClick={() => handleAnswerSelect(index.toString())}
                 >
@@ -141,7 +201,9 @@ export default function ExamViewer({ exam }) {
             </ul>
             <div className="flex justify-center items-center gap-2">
               <button
-                className="flex justify-center items-center gap-2 rounded-lg uppercase text-white bg-orange-500 py-4 px-6 shadow-md hover:bg-orange-300 duration-300"
+                className={`flex justify-center items-center gap-2 rounded-lg uppercase text-white ${
+                  !isPaused ? "bg-orange-500" : "bg-blue-500"
+                }  py-4 px-6 shadow-md hover:bg-orange-300 duration-300`}
                 onClick={handlePauseButton}
               >
                 {isPaused ? (
@@ -173,16 +235,13 @@ export default function ExamViewer({ exam }) {
             </div>
           </div>
         )}
-        {/* <div className={`${showTotalPoints ? "hidden" : "xl:block"} hidden`}>
-          <ExamSvg />
-        </div> */}
       </div>
-      {isPaused && (
+      {showOverlay && (
         <OverlayAlert
           title="Pause Exam"
           description="Are you sure you want to pause the exam?"
-          onConfirm={""}
-          onCancel={""}
+          onConfirm={handleConfirmPause}
+          onCancel={() => setShowOverlay(false)}
           confirmButtonColor="bg-orange-400"
           iconColor="text-orange-400"
         />

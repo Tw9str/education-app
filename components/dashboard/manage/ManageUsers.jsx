@@ -1,9 +1,10 @@
 "use client";
 import React, { useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { PromoteIcon, DeleteIcon } from "../Icons";
 import OverlayAlert from "@/components/widgets/OverlayAlert";
 import ConfirmModal from "@/components/widgets/ConfirmModal";
+import { updateUserDetails } from "@/state/authSlice";
 
 const ManageUsers = ({ users, onDelete, onPromote, onUpdate }) => {
   const token = useSelector((state) => state.auth.token);
@@ -11,6 +12,7 @@ const ManageUsers = ({ users, onDelete, onPromote, onUpdate }) => {
   const [userToDelete, setUserToDelete] = useState(null);
   const [userToPromote, setUserToPromote] = useState(null);
   const [role, setRole] = useState("student");
+  const dispatch = useDispatch();
 
   const confirmDelete = (id) => {
     setShowOverlay(true);
@@ -56,7 +58,9 @@ const ManageUsers = ({ users, onDelete, onPromote, onUpdate }) => {
         );
 
         if (response.ok) {
-          onPromote(userToPromote, role); // Update parent state
+          const user = await response.json();
+          onPromote(userToPromote, role);
+          dispatch(updateUserDetails(user));
         } else {
           console.error("Failed to promote user:", response.statusText);
         }
@@ -83,7 +87,9 @@ const ManageUsers = ({ users, onDelete, onPromote, onUpdate }) => {
       );
 
       if (response.ok) {
-        onUpdate(userId, { plan: newPlan }); // Update parent state
+        const user = await response.json();
+        onUpdate(userId, { plan: newPlan });
+        dispatch(updateUserDetails(user));
       } else {
         console.error("Failed to update user plan:", response.statusText);
       }

@@ -38,7 +38,7 @@ export default function ExamCategories({ categories }) {
               className="grid place-content-center gap-8 p-4 font-bold"
               href={`/dashboard/exams/${category.title}`}
             >
-              {category.title.replace("-", " ")}
+              {category.title.replace(/-/g, " ")}
             </Link>
             <div className="flex justify-between items-end">
               <span className="p-4">Count: {category.examCount}</span>

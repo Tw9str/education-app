@@ -1,13 +1,17 @@
 "use client";
+import React, { useState, useRef } from "react";
+import { useSelector } from "react-redux";
 import Notification from "@/components/widgets/Notification";
 import Image from "next/image";
-import React, { useRef, useState } from "react";
-import { useSelector } from "react-redux";
 
 export default function CreateExam({ categories }) {
   const [isNotificationOn, setIsNotificationOn] = useState(false);
   const [messages, setMessages] = useState({ message: "", error: "" });
-  const [examTitle, setExamTitle] = useState({ title: "", category: "" });
+  const [examTitle, setExamTitle] = useState({
+    title: "",
+    category: "",
+    duration: 60,
+  });
   const [questions, setQuestions] = useState([
     {
       image: null,
@@ -85,6 +89,8 @@ export default function CreateExam({ categories }) {
     const newErrors = {};
     if (!examTitle.title) newErrors.examTitle = "Exam title is required";
     if (!examTitle.category) newErrors.category = "Exam category is required";
+    if (!examTitle.duration || examTitle.duration <= 0)
+      newErrors.duration = "Duration must be a positive number";
     questions.forEach((question, qIndex) => {
       if (!question.image)
         newErrors[`questionImage${qIndex}`] = "Image is required";
@@ -111,6 +117,7 @@ export default function CreateExam({ categories }) {
     const formData = new FormData();
     formData.append("title", examTitle.title);
     formData.append("category", examTitle.category);
+    formData.append("duration", examTitle.duration);
     formData.append("user", userId);
 
     questions.forEach((question, index) => {
@@ -147,7 +154,7 @@ export default function CreateExam({ categories }) {
 
       if (response.ok) {
         setMessages({ ...messages, message: data.message, error: "" });
-        setExamTitle({ title: "", category: "" });
+        setExamTitle({ title: "", category: "", duration: 0 });
         setQuestions([
           {
             image: null,
@@ -225,12 +232,28 @@ export default function CreateExam({ categories }) {
                     className="text-secondary-900"
                     value={category._id}
                   >
-                    {category.title.replace("-", " ")}
+                    {category.title.replace(/-/g, " ")}
                   </option>
                 ))}
             </select>
             {errors.category && (
               <p className="text-red-500 text-sm">{errors.category}</p>
+            )}
+            <label htmlFor="duration" className="block text-sm text-gray-600">
+              Exam Duration (in minutes)
+            </label>
+            <input
+              type="number"
+              id="duration"
+              value={examTitle.duration}
+              onChange={(e) =>
+                setExamTitle({ ...examTitle, duration: e.target.value })
+              }
+              placeholder="Duration"
+              className="w-full px-3 py-2 border rounded-md focus:outline-green-500"
+            />
+            {errors.duration && (
+              <p className="text-red-500 text-sm">{errors.duration}</p>
             )}
           </div>
           {questions.map((question, qIndex) => (

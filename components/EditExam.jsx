@@ -221,7 +221,7 @@ export default function EditExam({ exam, categories }) {
                     className="text-secondary-900"
                     value={category._id}
                   >
-                    {category.title.replace("-", " ")}
+                    {category.title.replace(/-/g, " ")}
                   </option>
                 ))}
             </select>

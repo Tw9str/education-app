@@ -2,34 +2,40 @@
 import React, { useState, useEffect } from "react";
 import { MaterialSymbolsTimerOutline } from "./Icons";
 
-export default function Timer() {
-  const [timeRemaining, setTimeRemaining] = useState(3 * 60 * 60); // 3 hours in seconds
+export default function Timer({ initialTime, isPaused, onTimeChange }) {
+  const [timeRemaining, setTimeRemaining] = useState(initialTime);
 
   useEffect(() => {
+    setTimeRemaining(initialTime);
+  }, [initialTime]);
+
+  useEffect(() => {
+    if (isPaused) return;
+
     const timer = setInterval(() => {
       setTimeRemaining((prevTime) => {
-        if (prevTime <= 0) {
+        const newTime = prevTime - 1;
+        onTimeChange(newTime);
+        if (newTime <= 0) {
           clearInterval(timer);
           return 0;
         }
-        return prevTime - 1;
+        return newTime;
       });
     }, 1000);
 
     return () => clearInterval(timer);
-  }, []);
+  }, [isPaused, onTimeChange]);
 
-  const hours = Math.floor(timeRemaining / 3600);
-  const minutes = Math.floor((timeRemaining % 3600) / 60);
-  const seconds = timeRemaining % 60;
+  const formatTime = (time) => String(time).padStart(2, "0");
 
   return (
     <div className="flex justify-around items-center gap-2">
       <MaterialSymbolsTimerOutline />
       <div>
-        {hours.toString().padStart(2, "0")}:
-        {minutes.toString().padStart(2, "0")}:
-        {seconds.toString().padStart(2, "0")}
+        {formatTime(Math.floor(timeRemaining / 3600))}:
+        {formatTime(Math.floor((timeRemaining % 3600) / 60))}:
+        {formatTime(timeRemaining % 60)}
       </div>
     </div>
   );
